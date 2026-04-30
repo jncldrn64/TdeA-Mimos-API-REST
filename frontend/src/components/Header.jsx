@@ -17,9 +17,10 @@ export default function Header() {
  
         <div className="bg-yellow-400 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <p className="text-3xl font-bold text-[#5a2e0c]">
-              mimos
-            </p>
+            <img
+              src="https://www.mimos.com.co/wp-content/uploads/2022/07/newlogomimos.png"
+              alt="Helados Mimos - Logo"
+              className="w-full h-auto block m-0"/>
             <p className="text-3xl"></p>
           </div>
      

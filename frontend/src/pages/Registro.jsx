@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-function Login() {
+function Registro() {
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
@@ -9,33 +11,38 @@ function Login() {
   const navigate = useNavigate();
   const API = "http://localhost:3500";
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      alert("Ingresa email y contraseña");
+  const handleRegister = async () => {
+    if (!nombre || !apellido || !email || !password) {
+      alert("Todos los campos son obligatorios");
       return;
     }
 
     setCargando(true);
     try {
-      const response = await fetch(`${API}/api/login`, {
+      const response = await fetch(`${API}/api/usuario`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          id_rol: 1,
+          nombre,
+          apellido,
+          email,
+          password_hash: password,
+          estado: "activo",
+        }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("usuario", JSON.stringify(data.usuario));
-        alert(`¡Bienvenido, ${data.usuario.nombre}!`);
-        navigate("/");
+        alert("¡Cuenta creada! Ya puedes iniciar sesión.");
+        navigate("/login");
       } else {
         alert("Error: " + data.message);
       }
     } catch (error) {
       console.error(error);
-      alert("Error al iniciar sesión. ¿Está encendido el backend?");
+      alert("Error al registrar. ¿Está encendido el backend?");
     } finally {
       setCargando(false);
     }
@@ -55,8 +62,48 @@ function Login() {
 
       <div className="bg-[#7a2f0f]/10 rounded-xl p-6">
         <h2 className="text-center font-medium text-[#7a2f0f] text-lg mb-5">
-          Iniciar sesión
+          Crear cuenta
         </h2>
+
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label className="text-xs font-medium text-[#7a2f0f] block mb-1">
+              Nombre
+            </label>
+            <div className="flex items-center bg-white rounded-lg border border-[#7a2f0f]/25 px-2.5 gap-1.5">
+              <svg className="w-3.5 h-3.5 text-[#7a2f0f] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Juan"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full py-2.5 text-sm bg-transparent outline-none text-gray-700"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-[#7a2f0f] block mb-1">
+              Apellido
+            </label>
+            <div className="flex items-center bg-white rounded-lg border border-[#7a2f0f]/25 px-2.5 gap-1.5">
+              <svg className="w-3.5 h-3.5 text-[#7a2f0f] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Pérez"
+                value={apellido}
+                onChange={(e) => setApellido(e.target.value)}
+                className="w-full py-2.5 text-sm bg-transparent outline-none text-gray-700"
+              />
+            </div>
+          </div>
+        </div>
 
         <div className="mb-3">
           <label className="text-xs font-medium text-[#7a2f0f] block mb-1">
@@ -97,17 +144,17 @@ function Login() {
         </div>
 
         <button
-          onClick={handleLogin}
+          onClick={handleRegister}
           disabled={cargando}
           className="w-full bg-[#7a2f0f] text-white py-3 rounded-lg font-medium text-sm hover:bg-[#5c2109] transition-colors disabled:opacity-50"
         >
-          {cargando ? "Cargando..." : "Iniciar sesión"}
+          {cargando ? "Creando cuenta..." : "Crear cuenta"}
         </button>
 
         <p className="text-center mt-4 text-sm text-[#7a2f0f]">
-          ¿No tienes cuenta?{" "}
-          <Link to="/registro" className="font-medium underline cursor-pointer">
-            Crear cuenta
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/login" className="font-medium underline cursor-pointer">
+            Iniciar sesión
           </Link>
         </p>
       </div>
@@ -117,4 +164,4 @@ function Login() {
 );
 }
 
-export default Login;
+export default Registro;
