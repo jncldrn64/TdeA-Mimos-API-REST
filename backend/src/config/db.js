@@ -4,12 +4,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const stringConnection = {
-    user: process.env.USER,
+    user: process.env.DB_USER,
     password: process.env.PASSWORD,
     server: process.env.SERVER,
     database: process.env.DATABASE,
     options: {
-        trustServerCertificate: true
+        trustServerCertificate: true,
+        encrypt: false
     }
 };
 

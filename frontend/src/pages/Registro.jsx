@@ -1,29 +1,29 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-function Registro() {
+export default function Registro() {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
-
+  
   const navigate = useNavigate();
-  const API = "http://localhost:3500";
+  const API = import.meta.env.VITE_API_URL || "http://localhost:3500";
 
   const handleRegister = async () => {
     if (!nombre || !apellido || !email || !password) {
-      alert("Todos los campos son obligatorios");
+      alert("Todos los campos obligatorios (*) deben ser diligenciados.");
       return;
     }
 
     setCargando(true);
     try {
-      const response = await fetch(`${API}/api/usuario`, {
+      const res = await fetch(`${API}/api/usuario`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id_rol: 1,
+          id_rol: 2, // Rol 2: Cliente estándar (Hardcodeado por seguridad en registro público)
           nombre,
           apellido,
           email,
@@ -32,136 +32,122 @@ function Registro() {
         }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
       if (data.success) {
-        alert("¡Cuenta creada! Ya puedes iniciar sesión.");
+        alert("Registro completado con éxito. Ya puedes iniciar sesión.");
         navigate("/login");
       } else {
-        alert("Error: " + data.message);
+        alert("No se pudo completar el registro: " + data.message);
       }
-    } catch (error) {
-      console.error(error);
-      alert("Error al registrar. ¿Está encendido el backend?");
+    } catch {
+      alert("Error de conexión al procesar el registro con el servidor backend.");
     } finally {
       setCargando(false);
     }
   };
 
   return (
-  <div className="min-h-screen flex items-center justify-center bg-[#7a2f0f]">
-    <div className="bg-yellow-400 p-8 rounded-2xl w-96 shadow-xl">
-
-      <div className="flex justify-center mb-6">
-        <img
-          src="https://www.mimos.com.co/wp-content/uploads/2022/07/newlogomimos.png"
-          alt="Helados Mimos - Logo"
-          className="h-14 object-contain"
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-fondo)] px-4 font-inherit">
+      
+      {/* ── Identidad Visual Estática ── */}
+      <div className="mb-6 flex flex-col items-center select-none">
+        <img 
+          src="/img/logo.png" 
+          alt="Logotipo Corporativo" 
+          className="h-14 w-auto object-contain mb-2 drop-shadow-sm"
+          onError={(e) => { e.target.style.display = 'none'; }}
         />
+        <h2 className="text-xl font-black text-[var(--color-texto)] tracking-tight">
+          Alta de Cliente
+        </h2>
+        <p className="text-xs text-[var(--color-texto-suave)] mt-1">
+          Registro de acceso a la plataforma
+        </p>
       </div>
 
-      <div className="bg-[#7a2f0f]/10 rounded-xl p-6">
-        <h2 className="text-center font-medium text-[#7a2f0f] text-lg mb-5">
-          Crear cuenta
-        </h2>
-
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div>
-            <label className="text-xs font-medium text-[#7a2f0f] block mb-1">
-              Nombre
-            </label>
-            <div className="flex items-center bg-white rounded-lg border border-[#7a2f0f]/25 px-2.5 gap-1.5">
-              <svg className="w-3.5 h-3.5 text-[#7a2f0f] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-              </svg>
+      <div className="w-full max-w-md bg-[var(--color-superficie)] rounded-xl border border-[var(--color-borde)] p-8 shadow-sm flex flex-col gap-5">
+        
+        {/* ── Campos del Formulario ── */}
+        <div className="flex flex-col gap-3.5">
+          
+          {/* Fila Dual: Nombre y Apellido */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-texto-suave)]">
+                Nombre <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 placeholder="Juan"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="w-full py-2.5 text-sm bg-transparent outline-none text-gray-700"
+                className="w-full py-2.5 px-3 bg-[var(--color-fondo)] border border-[var(--color-borde)] rounded-lg text-sm outline-none focus:border-[var(--color-acento)] text-[var(--color-texto)] font-inherit transition-colors"
               />
             </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-medium text-[#7a2f0f] block mb-1">
-              Apellido
-            </label>
-            <div className="flex items-center bg-white rounded-lg border border-[#7a2f0f]/25 px-2.5 gap-1.5">
-              <svg className="w-3.5 h-3.5 text-[#7a2f0f] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-              </svg>
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-texto-suave)]">
+                Apellido <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 placeholder="Pérez"
                 value={apellido}
                 onChange={(e) => setApellido(e.target.value)}
-                className="w-full py-2.5 text-sm bg-transparent outline-none text-gray-700"
+                className="w-full py-2.5 px-3 bg-[var(--color-fondo)] border border-[var(--color-borde)] rounded-lg text-sm outline-none focus:border-[var(--color-acento)] text-[var(--color-texto)] font-inherit transition-colors"
               />
             </div>
           </div>
-        </div>
 
-        <div className="mb-3">
-          <label className="text-xs font-medium text-[#7a2f0f] block mb-1">
-            Correo electrónico
-          </label>
-          <div className="flex items-center bg-white rounded-lg border border-[#7a2f0f]/25 px-3 gap-2">
-            <svg className="w-4 h-4 text-[#7a2f0f] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <rect x="2" y="4" width="20" height="16" rx="2"/>
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-            </svg>
+          {/* Correo Electrónico */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-texto-suave)]">
+              Correo Electrónico <span className="text-red-500">*</span>
+            </label>
             <input
               type="email"
               placeholder="correo@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full py-2.5 text-sm bg-transparent outline-none text-gray-700"
+              className="w-full py-2.5 px-3 bg-[var(--color-fondo)] border border-[var(--color-borde)] rounded-lg text-sm outline-none focus:border-[var(--color-acento)] text-[var(--color-texto)] font-inherit transition-colors"
             />
           </div>
-        </div>
 
-        <div className="mb-5">
-          <label className="text-xs font-medium text-[#7a2f0f] block mb-1">
-            Contraseña
-          </label>
-          <div className="flex items-center bg-white rounded-lg border border-[#7a2f0f]/25 px-3 gap-2">
-            <svg className="w-4 h-4 text-[#7a2f0f] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <rect x="3" y="11" width="18" height="11" rx="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
+          {/* Contraseña */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-texto-suave)]">
+              Contraseña <span className="text-red-500">*</span>
+            </label>
             <input
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full py-2.5 text-sm bg-transparent outline-none text-gray-700"
+              className="w-full py-2.5 px-3 bg-[var(--color-fondo)] border border-[var(--color-borde)] rounded-lg text-sm outline-none focus:border-[var(--color-acento)] text-[var(--color-texto)] font-inherit transition-colors"
             />
           </div>
         </div>
 
-        <button
-          onClick={handleRegister}
-          disabled={cargando}
-          className="w-full bg-[#7a2f0f] text-white py-3 rounded-lg font-medium text-sm hover:bg-[#5c2109] transition-colors disabled:opacity-50"
-        >
-          {cargando ? "Creando cuenta..." : "Crear cuenta"}
-        </button>
+        {/* Botón de Registro */}
+        <div className="pt-1">
+          <button
+            onClick={handleRegister}
+            disabled={cargando}
+            className="w-full bg-[var(--color-primario)] hover:bg-[var(--color-primario-dark)] text-white py-3 rounded-lg font-bold text-sm tracking-wide transition-all disabled:opacity-50 active:scale-[0.99]"
+          >
+            {cargando ? "Registrando usuario..." : "Registrarse"}
+          </button>
+        </div>
 
-        <p className="text-center mt-4 text-sm text-[#7a2f0f]">
-          ¿Ya tienes cuenta?{" "}
-          <Link to="/login" className="font-medium underline cursor-pointer">
-            Iniciar sesión
+        {/* Retorno */}
+        <p className="text-xs text-center text-[var(--color-texto-suave)]">
+          ¿Ya posees una cuenta?{" "}
+          <Link to="/login" className="text-[var(--color-acento)] hover:underline font-semibold">
+            Inicia sesión
           </Link>
         </p>
+
       </div>
-
     </div>
-  </div>
-);
+  );
 }
-
-export default Registro;
