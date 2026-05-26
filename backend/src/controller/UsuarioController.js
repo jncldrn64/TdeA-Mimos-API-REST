@@ -116,4 +116,39 @@ const cambiarPassword = async (req, res) => {
     }
 };
 
-export { postUsuario, login, getUsuarios, deleteUsuario, updateUsuario, cambiarPassword };
+// ── LÓGICA DE RECUPERACIÓN (Simulada en Servidor) ──
+const recuperarPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: "El correo es obligatorio." });
+        }
+
+        // 1. Verificamos si el usuario existe usando la función que ya tenemos
+        const usuario = await loginUsuario(email);
+
+        // 2. Simulamos el envío del correo ÚNICAMENTE en la terminal del backend
+        if (usuario) {
+            console.log(`\n==============================================`);
+            console.log(`[SIMULACIÓN SMTP] Servidor de Correo Activado`);
+            console.log(`Destinatario: ${usuario.nombre} <${email}>`);
+            console.log(`Asunto: Recuperación de contraseña Mimos`);
+            console.log(`[LINK DE RECUPERACIÓN] http://localhost:5173/reset-password?token=token_seguro_${usuario.id_usuario}_98765`);
+            console.log(`==============================================\n`);
+        } else {
+            // Log silencioso para auditoría interna
+            console.log(`\n[SEGURIDAD] Intento de recuperación fallido: El correo ${email} no existe en la BD.\n`);
+        }
+
+        // 3. Respuesta ambigua al frontend para evitar enumeración de correos
+        res.status(200).json({ 
+            success: true, 
+            message: "Si el correo está registrado en nuestro sistema, recibirás un enlace de recuperación en breve." 
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error interno del servidor.", error: error.message });
+    }
+};
+
+export { postUsuario, login, getUsuarios, deleteUsuario, updateUsuario, cambiarPassword, recuperarPassword };

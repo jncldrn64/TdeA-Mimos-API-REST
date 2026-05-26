@@ -1,9 +1,10 @@
 import express from 'express';
 import { 
     getUsuarios, postUsuario, login, 
-    deleteUsuario, updateUsuario, cambiarPassword 
+    deleteUsuario, updateUsuario, cambiarPassword, recuperarPassword
 } from "../controller/UsuarioController.js";
 import { verificarToken } from '../middleware/authMiddleware.js';
+
 
 const router = express.Router();
 
@@ -19,5 +20,9 @@ router.put("/usuario/cambiar-password", verificarToken, cambiarPassword);
 
 router.delete("/usuario/:id_usuario", verificarToken, deleteUsuario);
 router.put("/usuario/:id_usuario", verificarToken, updateUsuario);
+
+router.post("/usuario", postUsuario); 
+router.post("/login", login);         
+router.post("/usuario/recuperar-password", recuperarPassword); // <-- ¡Nueva ruta añadida!
 
 export default router;

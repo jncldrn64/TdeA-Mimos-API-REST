@@ -83,12 +83,12 @@ export default function Catalogo() {
         <p className="text-[var(--color-texto-suave)] max-w-2xl mx-auto text-sm">Descubre nuestra selección de sabores únicos y especialidades preparadas con la mejor calidad.</p>
       </div>
 
-      {/* ── PANEL DE BÚSQUEDA Y ORDENAMIENTO ── */}
+	{/* ── PANEL DE BÚSQUEDA Y ORDENAMIENTO ── */}
       <div className="flex flex-col md:flex-row gap-4 mb-8 bg-[var(--color-superficie)] p-4 rounded-xl border border-[var(--color-borde)] shadow-sm">
         
         {/* Buscador */}
         <div className="flex-1 relative">
-          <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <img src="/img/temp/catalogo-icon.svg" alt="Buscar" className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 opacity-40" onError={(e)=>e.target.style.display='none'} />
           <input 
             type="text" 
             placeholder="Buscar por nombre o ingrediente..." 
@@ -100,7 +100,7 @@ export default function Catalogo() {
 
         {/* Selector de Orden */}
         <div className="md:w-64 relative">
-          <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+          <img src="/img/temp/vista-grid-icon.svg" alt="Ordenar" className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 opacity-40" onError={(e)=>e.target.style.display='none'} />
           <select 
             value={orden} 
             onChange={(e) => setOrden(e.target.value)}

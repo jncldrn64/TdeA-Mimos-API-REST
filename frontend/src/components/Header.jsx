@@ -71,7 +71,7 @@ export default function Header() {
                 <span className="text-[9px] font-bold uppercase text-[var(--color-texto-suave)] group-hover:text-[var(--color-acento)]">Pedidos</span>
               </Link>
 
-              <button onClick={handleLogout} className="flex flex-col items-center gap-1 group ml-1">
+              <button onClick={handleLogout} className="flex flex-col items-center gap-1 group ml-1 cursor-pointer">
                 <img src="/img/iconos/x-icon.svg" className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" alt="Salir" onError={(e)=>e.target.style.display='none'} />
                 <span className="text-[9px] font-bold uppercase text-red-400 group-hover:text-red-600">Salir</span>
               </button>
@@ -98,9 +98,8 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* ── BOTÓN HAMBURGUESA (Solo Móvil) ── */}
+        {/* ── SECCIÓN MÓVIL: Carrito visible y botón de hamburguesa con imagen SVG ── */}
         <div className="flex md:hidden items-center gap-4 z-50">
-          {/* Dejamos el carrito visible afuera del menú en móviles para acceso rápido */}
           <Link to="/carrito" onClick={cerrarMenu} className="relative">
             <img src="/img/iconos/carrito.svg" className="w-6 h-6 opacity-70" alt="Carrito" />
             {cantidadTotal > 0 && (
@@ -110,20 +109,20 @@ export default function Header() {
             )}
           </Link>
           
-          <button className="p-1 text-[var(--color-texto)]" onClick={() => setMenuAbierto(!menuAbierto)}>
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {menuAbierto ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
+          <button className="p-1 text-[var(--color-texto)] cursor-pointer" onClick={() => setMenuAbierto(!menuAbierto)}>
+            <img 
+              src={menuAbierto ? "/img/iconos/x-icon.svg" : "/img/temp/menu-icon.svg"} 
+              alt="Menu" 
+              className="w-7 h-7 opacity-80" 
+              onError={(e) => e.target.style.display='none'} 
+            />
           </button>
         </div>
       </div>
-		{/* ======================================================== */}
-		{/* ── MENÚ LATERAL DESPLEGABLE (DRAWER) PARA MÓVILES ── */}
-		{/* ======================================================== */}
+
+      {/* ======================================================== */}
+      {/* ── MENÚ LATERAL DESPLEGABLE (DRAWER) PARA MÓVILES ── */}
+      {/* ======================================================== */}
       
       {/* Overlay oscuro para tapar el fondo (Elevado a z-60) */}
       <div 
@@ -131,13 +130,13 @@ export default function Header() {
         onClick={cerrarMenu}
       ></div>
 
-      {/* Cajón lateral (Elevado a z-70 para tapar el botón de PQRS) */}
+      {/* Cajón lateral (Elevado a z-70 para cubrir completamente cualquier widget de la interfaz) */}
       <div className={`fixed top-0 right-0 h-full w-4/5 max-w-sm bg-[var(--color-superficie)] z-[70] shadow-2xl flex flex-col transform transition-transform duration-300 md:hidden ${menuAbierto ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Cabecera del Cajón */}
         <div className="p-5 border-b border-[var(--color-borde)] flex justify-between items-center bg-[var(--color-fondo)]">
           <span className="font-black text-lg text-[var(--color-texto)] tracking-tight">Menú</span>
-          <button onClick={cerrarMenu} className="p-2 rounded-full hover:bg-[var(--color-borde)] transition-colors">
+          <button onClick={cerrarMenu} className="p-2 rounded-full hover:bg-[var(--color-borde)] transition-colors cursor-pointer">
             <img src="/img/iconos/x-icon.svg" className="w-4 h-4 opacity-70" alt="Cerrar" onError={(e)=>e.target.style.display='none'}/>
           </button>
         </div>
@@ -150,7 +149,7 @@ export default function Header() {
           <span className="text-[var(--color-texto-suave)] hover:text-[var(--color-acento)] transition-colors cursor-pointer">Contacto Corporativo</span>
         </nav>
 
-        {/* Barra de Acciones (Horizontal tipo App Nativa) */}
+        {/* Barra de Acciones de Usuario (Barra horizontal inferior) */}
         <div className="mt-auto bg-[var(--color-fondo)] border-t border-[var(--color-borde)] p-4 pb-8">
           <div className="flex flex-row justify-around items-center">
             {usuario ? (
@@ -172,7 +171,7 @@ export default function Header() {
                   <span className="text-[10px] font-bold uppercase text-[var(--color-texto-suave)]">Pedidos</span>
                 </Link>
 
-                <button onClick={handleLogout} className="flex flex-col items-center gap-1.5">
+                <button onClick={handleLogout} className="flex flex-col items-center gap-1.5 cursor-pointer">
                   <img src="/img/iconos/x-icon.svg" className="w-6 h-6 opacity-70" alt="Salir" />
                   <span className="text-[10px] font-bold uppercase text-red-500">Salir</span>
                 </button>
@@ -180,7 +179,7 @@ export default function Header() {
             ) : (
               <Link to="/login" onClick={cerrarMenu} className="flex flex-col items-center gap-1.5 w-full">
                 <img src="/img/iconos/login.svg" className="w-6 h-6 opacity-70" alt="Ingresar" />
-                <span className="text-[10px] font-bold uppercase text-[var(--color-texto-suave)]">Ingresar a mi cuenta</span>
+                <span className="text-[10px] font-bold uppercase text-[var(--color-texto-suave)] text-center">Ingresar a mi cuenta</span>
               </Link>
             )}
           </div>
