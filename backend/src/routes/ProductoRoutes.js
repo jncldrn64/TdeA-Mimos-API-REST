@@ -4,16 +4,18 @@ import {
     postProducto, putProducto,
     patchStock, patchDesactivar, patchActivar
 } from '../controller/ProductoController.js';
-import { verificarToken } from '../middleware/authMiddleware.js'; // <-- IMPORTAMOS EL PORTERO
+import { verificarToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// ── Rutas Públicas (Catálogo visible para todos) ──
-router.get('/producto', getProductos);       // catálogo + ?buscar=término
+// 1. Rutas específicas PRIMERO (Para evitar que el parámetro :id se las coma)
+router.get('/producto/admin', verificarToken, getProductosAdmin);
+
+// 2. Rutas generales DESPUÉS
+router.get('/producto', getProductos);
 router.get('/producto/:id', getProductoPorId);
 
-// ── Rutas Protegidas (Gestión de Inventario) ──
-router.get('/producto/admin', verificarToken, getProductosAdmin); // <-- Corregido: Ahora está protegida
+// 3. Resto de rutas protegidas
 router.post('/producto', verificarToken, postProducto);
 router.put('/producto/:id', verificarToken, putProducto);
 router.patch('/producto/:id/stock', verificarToken, patchStock);

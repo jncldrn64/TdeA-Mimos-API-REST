@@ -20,141 +20,42 @@ import PasarelaWompi from "./pages/PasarelaWompi.jsx";
 export default function App() {
   return (
     <Router>
-      <Routes>
+      <div className="layout-wrapper">
         
-        {/* ── RUTAS PÚBLICAS (Accesibles por cualquier visitante) ── */}
-        <Route path="/" element={
-          <div className="layout-wrapper">
-            <Header />
-            <main className="main-content">
-              <Home />
-            </main>
-            <Footer />
-          </div>
-        } />
+        {/* 🚀 MEGA-OPTIMIZACIÓN: El Header y el Footer se dibujan UNA VEZ aquí afuera. 
+            El estado de las Notificaciones jamás se perderá al navegar. */}
+        <Header />
+        
+        <main className="main-content">
+          <Routes>
+            {/* ── RUTAS PÚBLICAS ── */}
+            <Route path="/" element={<Home />} />
+            <Route path="/catalogo" element={<Catalogo />} />
+            <Route path="/carrito" element={<CarritoView />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Registro />} />
+            <Route path="/recuperar" element={<RecuperarPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
-        <Route path="/catalogo" element={
-          <div className="layout-wrapper">
-            <Header />
-            <main className="main-content">
-              <Catalogo />
-            </main>
-            <Footer />
-          </div>
-        } />
+            {/* 🛡️ ── RUTAS PRIVADAS CLIENTE ── */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/envio" element={<DatosEnvio />} />
+              <Route path="/pasarela" element={<PasarelaWompi />} />
+              <Route path="/pedidos" element={<MisPedidos />} />
+              <Route path="/cuenta" element={<MiCuenta />} />
+            </Route>
 
-        <Route path="/carrito" element={
-          <div className="layout-wrapper">
-            <Header />
-            <main className="main-content">
-              <CarritoView />
-            </main>
-            <Footer />
-          </div>
-        } />
+            {/* 🛡️ ── RUTAS DE GESTIÓN INTERNA ── */}
+            <Route element={<ProtectedRoute rolesPermitidos={[0, 1, 2, 3]} />}>
+              <Route path="/admin/panel" element={<AdminDashboard />} />
+            </Route>
+          </Routes>
+        </main>
 
-        {/* ── RUTAS DE AUTENTICACIÓN Y CREDENCIALES ── */}
-        <Route path="/login" element={
-          <div className="layout-wrapper">
-            <Header />
-            <main className="main-content">
-              <Login />
-            </main>
-            <Footer />
-          </div>
-        } />
+        <Footer />
+        <BotonSoporteFlotante />
 
-        <Route path="/registro" element={
-          <div className="layout-wrapper">
-            <Header />
-            <main className="main-content">
-              <Registro />
-            </main>
-            <Footer />
-          </div>
-        } />
-
-        <Route path="/recuperar" element={
-          <div className="layout-wrapper">
-            <Header />
-            <main className="main-content">
-              <RecuperarPassword />
-            </main>
-            <Footer />
-          </div>
-        } />
-
-        <Route path="/reset-password" element={
-          <div className="layout-wrapper">
-            <Header />
-            <main className="main-content">
-              <ResetPassword />
-            </main>
-            <Footer />
-          </div>
-        } />
-
-        {/* 🛡️ ── RUTAS PRIVADAS CLIENTE (Requieren Inicio de Sesión Obligatorio) ── */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/envio" element={
-            <div className="layout-wrapper">
-              <Header />
-              <main className="main-content">
-                <DatosEnvio />
-              </main>
-              <Footer />
-            </div>
-          } />
-
-          <Route path="/pasarela" element={
-            <div className="layout-wrapper">
-              <Header />
-              <main className="main-content">
-                <PasarelaWompi />
-              </main>
-              <Footer />
-            </div>
-          } />
-
-          <Route path="/pedidos" element={
-            <div className="layout-wrapper">
-              <Header />
-              <main className="main-content">
-                <MisPedidos />
-              </main>
-              <Footer />
-            </div>
-          } />
-
-          <Route path="/cuenta" element={
-            <div className="layout-wrapper">
-              <Header />
-              <main className="main-content">
-                <MiCuenta />
-              </main>
-              <Footer />
-            </div>
-          } />
-        </Route>
-
-        {/* 🛡️ ── RUTAS DE GESTIÓN INTERNA (Requieren Roles Operativos: 0, 1, 2, 3) ── */}
-        <Route element={<ProtectedRoute rolesPermitidos={[0, 1, 2, 3]} />}>
-          <Route path="/admin/panel" element={
-            <div className="layout-wrapper">
-              <Header />
-              <main className="main-content">
-                <AdminDashboard />
-              </main>
-              <Footer />
-            </div>
-          } />
-        </Route>
-
-      </Routes>
-
-      {/* INYECCIÓN DEL COMPONENTE DE ASISTENCIA GLOBAL */}
-      <BotonSoporteFlotante />
-      
+      </div>
     </Router>
   );
 }

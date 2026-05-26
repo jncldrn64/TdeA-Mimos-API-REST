@@ -91,7 +91,8 @@ export default function AdminDashboard() {
     if (rol !== 0 && rol !== 2) return;
     setCargandoProductos(true);
     try {
-      const res = await fetch(`${API}/api/producto`, { headers: { "Authorization": `Bearer ${token}` } });
+      // AQUÍ: Añadir /admin al final de la ruta
+      const res = await fetch(`${API}/api/producto/admin`, { headers: { "Authorization": `Bearer ${token}` } });
       if (verificarSesion(res.status)) return;
       const data = await res.json();
       if (res.ok || data.success) setProductos(data.data || data);
