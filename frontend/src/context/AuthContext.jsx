@@ -3,13 +3,18 @@ import { createContext, useContext, useState } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  
-  // 1. INICIALIZACIÓN AUTO-SANABLE (Previene pantallas blancas)
+
+  // 1. INICIALIZACIÓN AUTO-SANABLE (Previene el Bucle Infinito)
   const [usuario, setUsuario] = useState(() => {
     try {
       const userGuardado = localStorage.getItem("usuario");
-      // Prevenir el crash si se guardó "undefined" o datos corruptos
-      if (!userGuardado || userGuardado === "undefined" || userGuardado === "[object Object]") {
+      const tokenGuardado = localStorage.getItem("token");
+
+      // Si falta CUALQUIERA de los dos, o los datos están corruptos, anular sesión.
+      if (!userGuardado || userGuardado === "undefined" || userGuardado === "[object Object]" || !tokenGuardado) {
+        // Limpieza de emergencia por si quedó un "usuario" atrapado sin token
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("token");
         return null;
       }
       return JSON.parse(userGuardado);
@@ -30,7 +35,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const cerrarSesion = () => {
-    // 3. LIMPIEZA SILENCIOSA: Borramos datos sin forzar recargas agresivas de navegador
+    // 3. LIMPIEZA SILENCIOSA
     setUsuario(null);
     localStorage.removeItem("usuario");
     localStorage.removeItem("token");

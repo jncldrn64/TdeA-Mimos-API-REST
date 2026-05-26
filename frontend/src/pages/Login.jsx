@@ -7,14 +7,17 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
-  
+
   const { iniciarSesion, usuario } = useAuth();
   const navigate = useNavigate();
   const API = import.meta.env.VITE_API_URL || "http://localhost:3500";
 
-  // Redirección inteligente: Si ya tienes sesión, saltas al panel sin cargar la vista
+  // Redirección inteligente corregida: Exige TANTO usuario COMO token
   useEffect(() => {
-    if (usuario) {
+    const token = localStorage.getItem("token");
+    
+    // Si hay usuario y token, saltas al panel. Si falta el token, te quedas aquí.
+    if (usuario && token) {
       const rol = Number(usuario.rol || usuario.id_rol);
       if ([0, 1, 2, 3].includes(rol)) {
         navigate("/admin/panel");
@@ -35,13 +38,13 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       });
-      
+
       const data = await res.json();
 
       if (res.ok && data.success) {
         // Enviar datos en el orden estricto (usuario, token)
         iniciarSesion(data.usuario || data.data, data.token);
-        
+
         // Ruteo por memoria virtual (Cero pestañeos)
         const rol = Number((data.usuario || data.data).rol || (data.usuario || data.data).id_rol);
         if ([0, 1, 2, 3].includes(rol)) {
@@ -62,7 +65,7 @@ export default function Login() {
   return (
     <div className="min-h-[85vh] flex items-center justify-center p-6 bg-[var(--color-fondo)] font-inherit">
       <div className="w-full max-w-md bg-[var(--color-superficie)] p-8 rounded-2xl shadow-sm border border-[var(--color-borde)]">
-        
+
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-[var(--color-secundario-soft)] rounded-full flex items-center justify-center mx-auto mb-4">
             <img src="/img/iconos/login.svg" alt="Login" className="w-6 h-6 opacity-80" onError={(e) => e.target.style.display='none'} />
