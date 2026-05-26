@@ -6,7 +6,7 @@ import RouterProducto from './routes/ProductoRoutes.js'
 import RouterVenta from './routes/VentaRoutes.js';
 import RouterWompi from './routes/WompiRoutes.js'; // <-- Nombre corregido
 import incidenteRoutes from './routes/IncidenteRoutes.js';
-import categoriaRoutes from './routes/categoriaRoutes.js';
+import categoriaRoutes from './routes/CategoriaRoutes.js';
 
 dotenv.config()
 const app = express()
