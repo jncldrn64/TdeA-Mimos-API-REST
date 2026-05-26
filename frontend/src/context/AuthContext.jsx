@@ -1,40 +1,39 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [usuario, setUsuario] = useState(null);
-  const [cargandoSesion, setCargandoSesion] = useState(true);
-
-  // Al cargar la app, revisa si hay alguien guardado en el navegador
-  useEffect(() => {
+export const AuthProvider = ({ children }) => {
+  // 1. INICIALIZACIÓN INTELIGENTE: Lee de localStorage desde el milisegundo cero.
+  // Así sobrevivimos al F5 y a las nuevas pestañas.
+  const [usuario, setUsuario] = useState(() => {
     const userGuardado = localStorage.getItem("usuario");
-    if (userGuardado) {
-      setUsuario(JSON.parse(userGuardado));
-    }
-    setCargandoSesion(false);
-  }, []);
+    return userGuardado ? JSON.parse(userGuardado) : null;
+  });
 
-  // Función global para iniciar sesión
-  const iniciarSesion = (token, datosUsuario) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("usuario", JSON.stringify(datosUsuario));
+  const iniciarSesion = (datosUsuario, token) => {
     setUsuario(datosUsuario);
+    localStorage.setItem("usuario", JSON.stringify(datosUsuario));
+    localStorage.setItem("token", token);
   };
 
-  // Función global para cerrar sesión
   const cerrarSesion = () => {
-    localStorage.removeItem("token");
+    // 2. BARRIDO DE SEGURIDAD
     localStorage.removeItem("usuario");
-    setUsuario(null);
+    localStorage.removeItem("token");
+    
+    // 3. PRIVACIDAD: Borramos el carrito y notifs al salir de la cuenta
+    localStorage.removeItem("carrito");
+    localStorage.removeItem("notifsLeidas");
+
+    // 4. Forzamos una recarga limpia para destruir cualquier dato residual en RAM
+    window.location.href = "/login";
   };
 
   return (
-    <AuthContext.Provider value={{ usuario, iniciarSesion, cerrarSesion, cargandoSesion }}>
+    <AuthContext.Provider value={{ usuario, iniciarSesion, cerrarSesion }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-// Hook para usar en cualquier componente
 export const useAuth = () => useContext(AuthContext);

@@ -1,28 +1,22 @@
 import express from 'express';
 import { 
-    getUsuarios, postUsuario, login, 
-    deleteUsuario, updateUsuario, cambiarPassword, recuperarPassword
-} from "../controller/UsuarioController.js";
+    procesarCheckout, 
+    obtenerMisPedidos, 
+    obtenerDetalleVenta,
+    obtenerTodosLosPedidos, // <-- NUEVA
+    actualizarEstadoPedido  // <-- NUEVA
+} from '../controller/VentaController.js';
 import { verificarToken } from '../middleware/authMiddleware.js';
-
 
 const router = express.Router();
 
-// ── Rutas Públicas (Sin token) ──
-router.post("/usuario", postUsuario); 
-router.post("/login", login);         
+// ── RUTAS DEL CLIENTE ──
+router.post('/checkout', verificarToken, procesarCheckout);
+router.get('/mis-pedidos', verificarToken, obtenerMisPedidos);
+router.get('/mis-pedidos/:id/detalle', verificarToken, obtenerDetalleVenta);
 
-// ── Rutas Protegidas (Exigen token JWT válido) ──
-router.get("/usuario", verificarToken, getUsuarios);
-
-// IMPORTANTE: Esta ruta específica debe ir antes de las que tienen el parámetro dinámico :id_usuario
-router.put("/usuario/cambiar-password", verificarToken, cambiarPassword);
-
-router.delete("/usuario/:id_usuario", verificarToken, deleteUsuario);
-router.put("/usuario/:id_usuario", verificarToken, updateUsuario);
-
-router.post("/usuario", postUsuario); 
-router.post("/login", login);         
-router.post("/usuario/recuperar-password", recuperarPassword); // <-- ¡Nueva ruta añadida!
+// ── RUTAS DEL ADMINISTRADOR ──
+router.get('/admin/pedidos', verificarToken, obtenerTodosLosPedidos);
+router.patch('/admin/pedidos/:id/estado', verificarToken, actualizarEstadoPedido);
 
 export default router;
