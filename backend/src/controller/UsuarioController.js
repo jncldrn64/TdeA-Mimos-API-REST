@@ -116,38 +116,65 @@ const cambiarPassword = async (req, res) => {
     }
 };
 
-// ── LÓGICA DE RECUPERACIÓN (Simulada en Servidor) ──
+// ── LÓGICA DE RECUPERACIÓN (Paso 1: Generar Token Real) ──
 const recuperarPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        if (!email) {
-            return res.status(400).json({ success: false, message: "El correo es obligatorio." });
-        }
+        if (!email) return res.status(400).json({ success: false, message: "El correo es obligatorio." });
 
-        // 1. Verificamos si el usuario existe usando la función que ya tenemos
         const usuario = await loginUsuario(email);
 
-        // 2. Simulamos el envío del correo ÚNICAMENTE en la terminal del backend
         if (usuario) {
+            // Generamos un token JWT real que expira en 15 minutos
+            const resetToken = jwt.sign(
+                { id: usuario.id_usuario, email: usuario.email, isReset: true },
+                process.env.JWT_SECRET || 'tu_clave_secreta_aqui',
+                { expiresIn: '15m' }
+            );
+
             console.log(`\n==============================================`);
             console.log(`[SIMULACIÓN SMTP] Servidor de Correo Activado`);
             console.log(`Destinatario: ${usuario.nombre} <${email}>`);
             console.log(`Asunto: Recuperación de contraseña Mimos`);
-            console.log(`[LINK DE RECUPERACIÓN] http://localhost:5173/reset-password?token=token_seguro_${usuario.id_usuario}_98765`);
+            console.log(`[LINK DE RECUPERACIÓN] http://localhost:5173/reset-password?token=${resetToken}`);
             console.log(`==============================================\n`);
         } else {
-            // Log silencioso para auditoría interna
-            console.log(`\n[SEGURIDAD] Intento de recuperación fallido: El correo ${email} no existe en la BD.\n`);
+            console.log(`\n[SEGURIDAD] Intento de recuperación fallido para: ${email}\n`);
         }
 
-        // 3. Respuesta ambigua al frontend para evitar enumeración de correos
-        res.status(200).json({ 
-            success: true, 
-            message: "Si el correo está registrado en nuestro sistema, recibirás un enlace de recuperación en breve." 
-        });
-
+        res.status(200).json({ success: true, message: "Si el correo está registrado, recibirás un enlace." });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Error interno del servidor.", error: error.message });
+        res.status(500).json({ success: false, message: "Error interno.", error: error.message });
+    }
+};
+
+// ── LÓGICA DE RECUPERACIÓN (Paso 2: Guardar Nueva Contraseña) ──
+const resetearPassword = async (req, res) => {
+    try {
+        const { token, nuevaPassword } = req.body;
+        
+        if (!token || !nuevaPassword) {
+            return res.status(400).json({ success: false, message: "Token y nueva contraseña obligatorios." });
+        }
+
+        // 1. Desencriptar y verificar que el token sea válido y no haya expirado
+        const secret = process.env.JWT_SECRET || 'tu_clave_secreta_aqui';
+        const decoded = jwt.verify(token, secret);
+
+        if (!decoded.isReset) {
+            return res.status(403).json({ success: false, message: "El token no es válido para esta operación." });
+        }
+
+        // 2. Encriptar la nueva contraseña
+        const nuevoHash = await bcrypt.hash(nuevaPassword, 10);
+        
+        // 3. Actualizar la base de datos (usando la función que ya tenías)
+        await actualizarPassword(decoded.id, nuevoHash);
+
+        res.status(200).json({ success: true, message: "Contraseña restablecida con éxito." });
+    } catch (error) {
+        // Si jwt.verify falla, cae aquí automáticamente
+        res.status(401).json({ success: false, message: "El enlace es inválido o ha expirado.", error: error.message });
     }
 };
 
