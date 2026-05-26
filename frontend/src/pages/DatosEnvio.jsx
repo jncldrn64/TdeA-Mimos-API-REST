@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function DatosEnvio() {
-  const { carrito, valorTotal, vaciarCarrito } = useCart();
+  const { carrito, valorTotal } = useCart();
   const { usuario, cerrarSesion } = useAuth();
   const navigate = useNavigate();
 
@@ -47,14 +47,13 @@ export default function DatosEnvio() {
     setProcesando(true);
 
     try {
-      // Solo pedimos las firmas de Wompi usando un ID temporal (0), la venta real se hará en el siguiente paso
+      // SOLO PREPARAMOS LA PASARELA, LA VENTA SE HACE EN EL SIGUIENTE PASO
       const resWompi = await fetch(`${API}/api/wompi/parametros`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ id_venta: 0, total: TotalFinal })
       });
 
-      // ¡Corregido! Ya no usamos la variable fantasma, hacemos la validación directa:
       if (resWompi.status === 401 || resWompi.status === 403) {
         alert("Tu sesión ha expirado.");
         cerrarSesion(); 
@@ -69,14 +68,15 @@ export default function DatosEnvio() {
           state: { 
             parametrosWompi: dataWompi.data, 
             datosEnvio: formEnvio,
-            totalFinal: TotalFinal // Pasamos el total final a la pasarela
+            totalFinal: TotalFinal
           } 
         });
       } else {
         alert("Error al contactar pasarela de pago.");
       }
+
     } catch (error) {
-      console.error(error); // Por si acaso, lo imprimimos en consola
+      console.error(error);
       alert("Falla de red al intentar contactar la pasarela.");
     } finally {
       setProcesando(false);
@@ -108,7 +108,6 @@ export default function DatosEnvio() {
             </div>
           </div>
 
-          {/* ── FORMULARIO SIN onSubmit (React toma el control) ── */}
           <form id="form-envio">
             <h2 className="text-xl font-bold text-[var(--color-texto)] flex items-center gap-2 mb-4">
               <img src="/img/iconos/envio-icon.svg" className="w-5 h-5 opacity-70" alt="Envío" onError={(e)=>e.target.style.display='none'}/>
@@ -194,14 +193,13 @@ export default function DatosEnvio() {
             </div>
             <p className="text-right text-[10px] text-[var(--color-texto-suave)] mb-6">Todos los impuestos incluidos</p>
 
-            {/* ── BOTÓN TIPO BUTTON (Dispara a React sin validar el HTML5) ── */}
             <button 
               type="button" 
               onClick={handleProcesarCheckout}
               disabled={procesando}
               className="w-full bg-[var(--color-primario)] hover:bg-[var(--color-primario-dark)] text-white font-black py-4 rounded-xl shadow-md transition-all active:scale-95 text-lg disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide flex justify-center items-center gap-2"
             >
-              {procesando ? "Procesando..." : "Ir al Pago"}
+              {procesando ? "Conectando al banco..." : "Ir al Pago"}
             </button>
 
             <div className="mt-6 text-center">

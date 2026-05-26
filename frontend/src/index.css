@@ -1,25 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  /* ── Colores principales ── */
-  /* INSTRUCCIÓN DE BRAND: reemplaza estos valores con los colores de tu marca.
-     Ver documentación de personalización en: frontend/public/brand/README.md */
-  --color-primario:       #3a3a3a;   /* color principal — botones, headers */
-  --color-primario-dark:  #1f1f1f;   /* hover de primario */
-  --color-secundario:     #e8e8e8;   /* fondos de tarjetas, barras */
-  --color-acento:         #555555;   /* badges, highlights */
+  /* ── Colores corporativos Mimos ── */
+  --color-primario:       #7a2f0f;   /* Marrón Mimos (Header, Botones principales) */
+  --color-primario-dark:  #5a2e0c;   /* Marrón Oscuro (Hover) */
+  --color-secundario:     #facc15;   /* Amarillo Mimos (Tarjetas, destacados) */
+  --color-secundario-soft:#fef9c3;   /* Amarillo muy suave para fondos de tarjetas */
+  --color-acento:         #ea580c;   /* Naranja para llamadas a la acción */
 
   /* ── Tipografía y fondo ── */
-  --color-fondo:          #f5f5f5;
-  --color-superficie:     #ffffff;
-  --color-texto:          #1a1a1a;
-  --color-texto-suave:    #666666;
-  --color-borde:          #dddddd;
+  --color-fondo:          #fcfaf8;   /* Blanco crema (tipo vainilla) */
+  --color-superficie:     #ffffff;   /* Blanco puro para tarjetas */
+  --color-texto:          #271c19;   /* Casi negro, tono cálido */
+  --color-texto-suave:    #786863;   /* Gris cálido */
+  --color-borde:          #e5dcd8;
 
   /* ── Espaciado y forma ── */
   --radio:                12px;
-  --sombra-card:          0 1px 4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --sombra-hover:         0 4px 16px rgba(0,0,0,0.12);
+  --sombra-card:          0 1px 4px rgba(122,47,15,0.08), 0 1px 2px rgba(122,47,15,0.04);
+  --sombra-hover:         0 4px 16px rgba(122,47,15,0.12);
 
   /* ── Fuente ── */
   font-family: 'Segoe UI', system-ui, sans-serif;

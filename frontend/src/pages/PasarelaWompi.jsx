@@ -6,21 +6,20 @@ export default function PasarelaWompi() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // 1. ¡TODOS LOS HOOKS Y ESTADOS VAN AQUÍ ADENTRO!
+  // ¡Todos los hooks viven adentro del componente!
   const { carrito, vaciarCarrito } = useCart();
   const [tarjeta, setTarjeta] = useState("");
   const [cvc, setCvc] = useState("");
   const [vencimiento, setVencimiento] = useState("");
-  const [procesando, setProcesando] = useState(false);
-  const [metodo, setMetodo] = useState('tarjeta');
-
+  
   const token = localStorage.getItem("token");
   const API = import.meta.env.VITE_API_URL || "http://localhost:3500";
   
-  // Extraemos los datos que nos mandó el CarritoView
-  const { parametrosWompi, id_venta } = location.state || {};
+  const { parametrosWompi, totalFinal } = location.state || {};
 
-  // Si alguien entra a esta ruta directamente sin pasar por el carrito, lo expulsamos
+  const [procesando, setProcesando] = useState(false);
+  const [metodo, setMetodo] = useState('tarjeta');
+
   if (!parametrosWompi) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 font-inherit">
@@ -53,7 +52,7 @@ export default function PasarelaWompi() {
 
       // 3. ¡AHORA SÍ! Transacción real en SQL Server
       const payloadVenta = {
-        total: location.state.totalFinal,
+        total: totalFinal,
         items: carrito.map(item => ({
           id_producto: item.id_producto,
           cantidad: item.cantidad,
@@ -85,11 +84,8 @@ export default function PasarelaWompi() {
 
   return (
     <div className="min-h-screen bg-[#111827] flex flex-col items-center justify-center p-4 font-inherit">
-      
-      {/* Tarjeta de la Pasarela */}
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
         
-        {/* Cabecera Wompi Mock */}
         <div className="bg-blue-600 p-6 text-white flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-black tracking-tighter">wompi <span className="font-light text-sm">| simulación</span></h1>
@@ -102,7 +98,6 @@ export default function PasarelaWompi() {
         </div>
 
         <div className="p-8">
-          {/* Datos de Integridad */}
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8 text-xs font-mono text-gray-500 break-all">
             <p className="font-bold text-gray-700 mb-1">Criptografía de Transacción:</p>
             <p>REF: {parametrosWompi.referencia}</p>
@@ -130,7 +125,6 @@ export default function PasarelaWompi() {
             </button>
           </div>
 
-          {/* Formulario de Tarjeta Funcional */}
           <div className={`space-y-4 ${metodo === 'tarjeta' ? 'block' : 'hidden'}`}>
             <input 
               type="text" 
