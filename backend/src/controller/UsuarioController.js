@@ -20,7 +20,8 @@ const postUsuario = async (req, res) => {
         const data = await insertarUsuario(req.body);
         res.status(201).json({ success: true, message: "Usuario creado exitosamente" });
     } catch (error) {
-        res.status(500).json({ message: "Error al crear el usuario" });
+        // Le agregamos el error.message para saber exactamente qué falló en SQL Server
+        res.status(500).json({ success: false, message: "Error al crear el usuario: " + error.message });
     }
 };
 

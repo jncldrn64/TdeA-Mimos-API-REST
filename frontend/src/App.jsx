@@ -3,8 +3,6 @@ import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import BotonSoporteFlotante from "./components/BotonSoporteFlotante.jsx";
 
-
-// ── IMPORTACIONES CORREGIDAS SEGÚN TU DIRECTORIO ──
 import Home from "./pages/Home.jsx";
 import Catalogo from "./pages/Catalogo.jsx";
 import CarritoView from "./pages/CarritoView.jsx";
@@ -13,6 +11,7 @@ import MisPedidos from "./pages/MisPedidos.jsx";
 import MiCuenta from "./pages/MiCuenta.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Login from "./pages/Login.jsx";
+import Registro from "./pages/Registro.jsx"; // <-- ¡IMPORTACIÓN AÑADIDA!
 import PasarelaWompi from "./pages/PasarelaWompi.jsx";
 
 export default function App() {
@@ -25,7 +24,7 @@ export default function App() {
           <div className="layout-wrapper">
             <Header />
             <main className="main-content">
-              <Home /> {/* Usando tu Home.jsx */}
+              <Home /> 
             </main>
             <Footer />
           </div>
@@ -51,11 +50,23 @@ export default function App() {
           </div>
         } />
 
+        {/* ── RUTAS DE AUTENTICACIÓN ── */}
         <Route path="/login" element={
           <div className="layout-wrapper">
             <Header />
             <main className="main-content">
               <Login />
+            </main>
+            <Footer />
+          </div>
+        } />
+
+        {/* <-- ¡NUEVA RUTA DE REGISTRO AÑADIDA AQUÍ! --> */}
+        <Route path="/registro" element={
+          <div className="layout-wrapper">
+            <Header />
+            <main className="main-content">
+              <Registro />
             </main>
             <Footer />
           </div>
@@ -76,7 +87,7 @@ export default function App() {
           <div className="layout-wrapper">
             <Header />
             <main className="main-content">
-              <PasarelaWompi /> {/* Usando tu PasarelaWompi.jsx */}
+              <PasarelaWompi />
             </main>
             <Footer />
           </div>
