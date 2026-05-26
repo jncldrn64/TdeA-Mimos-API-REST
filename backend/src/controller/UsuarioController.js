@@ -178,4 +178,4 @@ const resetearPassword = async (req, res) => {
     }
 };
 
-export { postUsuario, login, getUsuarios, deleteUsuario, updateUsuario, cambiarPassword, recuperarPassword };
+export { postUsuario, login, getUsuarios, deleteUsuario, updateUsuario, cambiarPassword, recuperarPassword, resetearPassword };
