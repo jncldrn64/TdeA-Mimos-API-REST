@@ -4,33 +4,38 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   
-  // 1. INICIALIZACIÓN INTELIGENTE
+  // 1. INICIALIZACIÓN AUTO-SANABLE (Previene pantallas blancas)
   const [usuario, setUsuario] = useState(() => {
-    const userGuardado = localStorage.getItem("usuario");
-    return userGuardado ? JSON.parse(userGuardado) : null;
+    try {
+      const userGuardado = localStorage.getItem("usuario");
+      // Prevenir el crash si se guardó "undefined" o datos corruptos
+      if (!userGuardado || userGuardado === "undefined" || userGuardado === "[object Object]") {
+        return null;
+      }
+      return JSON.parse(userGuardado);
+    } catch (error) {
+      console.warn("Memoria corrupta detectada. Limpiando caché...");
+      localStorage.removeItem("usuario");
+      localStorage.removeItem("token");
+      return null;
+    }
   });
 
-  // ⚠️ Corrección de Bug: El orden (token, datosUsuario) ahora coincide perfectamente con Login.jsx
-  const iniciarSesion = (token, datosUsuario) => {
+  // 2. ORDEN CORREGIDO: (Primero datos, luego token)
+  const iniciarSesion = (datosUsuario, token) => {
+    if (!datosUsuario || !token) return;
     setUsuario(datosUsuario);
     localStorage.setItem("usuario", JSON.stringify(datosUsuario));
     localStorage.setItem("token", token);
   };
 
   const cerrarSesion = () => {
-    // 1. Vaciamos la memoria RAM (Estado de React)
+    // 3. LIMPIEZA SILENCIOSA: Borramos datos sin forzar recargas agresivas de navegador
     setUsuario(null);
-
-    // 2. Vaciamos el disco duro (LocalStorage)
     localStorage.removeItem("usuario");
     localStorage.removeItem("token");
     localStorage.removeItem("carrito");
     localStorage.removeItem("notifsLeidas");
-
-    // 3. ⚠️ CORRECCIÓN DEL BUCLE: Solo recargamos si NO estamos en la página de Login
-    if (window.location.pathname !== "/login") {
-      window.location.href = "/login";
-    }
   };
 
   return (
