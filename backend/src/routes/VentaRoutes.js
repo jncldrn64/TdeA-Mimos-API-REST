@@ -1,16 +1,22 @@
 import express from 'express';
-import { procesarCheckout, obtenerMisPedidos, obtenerDetalleVenta } from '../controller/VentaController.js';
+import { 
+    procesarCheckout, 
+    obtenerMisPedidos, 
+    obtenerDetalleVenta,
+    obtenerTodosLosPedidos,   // <-- Agregado
+    actualizarEstadoPedido    // <-- Agregado
+} from '../controller/VentaController.js';
 import { verificarToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Ruta para procesar el pago y crear el pedido
+// ── Rutas Cliente ──
 router.post('/checkout', verificarToken, procesarCheckout);
-
-// Ruta para listar el historial general del cliente
 router.get('/mis-pedidos', verificarToken, obtenerMisPedidos);
-
-// Ruta para ver el desglose y recibo de un pedido específico
 router.get('/mis-pedidos/:id/detalle', verificarToken, obtenerDetalleVenta);
+
+// ── Rutas Administrador ──
+router.get('/admin/pedidos', verificarToken, obtenerTodosLosPedidos);
+router.patch('/admin/pedidos/:id/estado', verificarToken, actualizarEstadoPedido);
 
 export default router;

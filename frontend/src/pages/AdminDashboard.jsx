@@ -170,12 +170,13 @@ export default function AdminDashboard() {
     } catch (e) { alert("Falla de red al responder."); }
   };
 
-  // ── FUNCIONES DE PEDIDOS ──
+// ── FUNCIONES DE PEDIDOS ──
   const cargarPedidos = async () => {
     if (rol !== 0 && rol !== 1 && rol !== 2) return; 
     setCargandoPedidos(true);
     try {
-      const res = await fetch(`${API}/api/admin/pedidos`, { headers: { "Authorization": `Bearer ${token}` } });
+      // CORRECCIÓN: Se añadió '/ventas' a la ruta
+      const res = await fetch(`${API}/api/ventas/admin/pedidos`, { headers: { "Authorization": `Bearer ${token}` } });
       if (verificarSesion(res.status)) return;
       const data = await res.json();
       if (data.success) setPedidos(data.data);
@@ -185,7 +186,8 @@ export default function AdminDashboard() {
 
   const cambiarEstadoPedido = async (id, nuevoEstado) => {
     try {
-      const res = await fetch(`${API}/api/admin/pedidos/${id}/estado`, {
+      // CORRECCIÓN: Se añadió '/ventas' a la ruta
+      const res = await fetch(`${API}/api/ventas/admin/pedidos/${id}/estado`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ estado: nuevoEstado })
