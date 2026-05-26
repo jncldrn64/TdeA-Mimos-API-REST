@@ -5,18 +5,25 @@ import { useCart } from "../context/CartContext.jsx";
 export default function PasarelaWompi() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { vaciarCarrito } = useCart();
+  
+  // 1. ¡TODOS LOS HOOKS Y ESTADOS VAN AQUÍ ADENTRO!
+  const { carrito, vaciarCarrito } = useCart();
+  const [tarjeta, setTarjeta] = useState("");
+  const [cvc, setCvc] = useState("");
+  const [vencimiento, setVencimiento] = useState("");
+  const [procesando, setProcesando] = useState(false);
+  const [metodo, setMetodo] = useState('tarjeta');
+
+  const token = localStorage.getItem("token");
+  const API = import.meta.env.VITE_API_URL || "http://localhost:3500";
   
   // Extraemos los datos que nos mandó el CarritoView
   const { parametrosWompi, id_venta } = location.state || {};
 
-  const [procesando, setProcesando] = useState(false);
-  const [metodo, setMetodo] = useState('tarjeta');
-
   // Si alguien entra a esta ruta directamente sin pasar por el carrito, lo expulsamos
   if (!parametrosWompi) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 font-inherit">
         <div className="bg-white p-8 rounded-xl shadow-lg text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
           <p className="text-gray-600 mb-6">Sesión de pago inválida o expirada.</p>
@@ -26,20 +33,60 @@ export default function PasarelaWompi() {
     );
   }
 
-  const simularPago = () => {
+  const simularPago = async () => {
+    // 1. Validación estricta
+    if (metodo === 'tarjeta') {
+      const numerosTarjeta = tarjeta.replace(/\D/g, '');
+      if (numerosTarjeta.length < 16) {
+        return alert("El número de tarjeta debe tener al menos 16 dígitos.");
+      }
+      if (cvc.length < 3) {
+        return alert("El código de seguridad (CVC) no es válido.");
+      }
+    }
+
     setProcesando(true);
-    // Simulamos la latencia del banco (2 segundos)
-    setTimeout(() => {
-      alert(`¡Pago Aprobado exitosamente!\nReferencia Wompi: ${parametrosWompi.referencia}`);
-      vaciarCarrito();
-      navigate("/"); // Redirigimos al inicio (o podríamos enviarlo a "Mis Pedidos")
-    }, 2000);
+
+    try {
+      // 2. Simulamos la latencia del banco (2 segundos)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // 3. ¡AHORA SÍ! Transacción real en SQL Server
+      const payloadVenta = {
+        total: location.state.totalFinal,
+        items: carrito.map(item => ({
+          id_producto: item.id_producto,
+          cantidad: item.cantidad,
+          precio_unitario: item.precio_unitario
+        }))
+      };
+
+      const res = await fetch(`${API}/api/ventas/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify(payloadVenta)
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        alert(`¡Pago Aprobado exitosamente!\nReferencia Wompi: ${parametrosWompi.referencia}\nTu número de pedido es el #${data.id_venta}`);
+        vaciarCarrito();
+        navigate("/pedidos"); // Redirigimos al historial de pedidos para que vean el recibo
+      } else {
+        alert(data.message || "Error al procesar la orden en la base de datos. Es posible que el stock se haya agotado.");
+      }
+    } catch (error) {
+      alert("Error de conexión. Tu tarjeta no fue cargada.");
+    } finally {
+      setProcesando(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#111827] flex flex-col items-center justify-center p-4 font-inherit">
       
-      {/* Tarjeta de la Pasarela (Estilo oscuro simulando entorno seguro) */}
+      {/* Tarjeta de la Pasarela */}
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
         
         {/* Cabecera Wompi Mock */}
@@ -55,7 +102,7 @@ export default function PasarelaWompi() {
         </div>
 
         <div className="p-8">
-          {/* Datos de Integridad (Para mostrarle al profesor que sí se hizo el hash) */}
+          {/* Datos de Integridad */}
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8 text-xs font-mono text-gray-500 break-all">
             <p className="font-bold text-gray-700 mb-1">Criptografía de Transacción:</p>
             <p>REF: {parametrosWompi.referencia}</p>
@@ -83,12 +130,33 @@ export default function PasarelaWompi() {
             </button>
           </div>
 
-          {/* Formulario Ficticio de Tarjeta */}
+          {/* Formulario de Tarjeta Funcional */}
           <div className={`space-y-4 ${metodo === 'tarjeta' ? 'block' : 'hidden'}`}>
-            <input type="text" placeholder="Número de Tarjeta (Simulado)" className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500" readOnly value="**** **** **** 4242" />
+            <input 
+              type="text" 
+              placeholder="Número de Tarjeta (16 dígitos)" 
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 outline-none focus:border-blue-500" 
+              maxLength="16"
+              value={tarjeta}
+              onChange={(e) => setTarjeta(e.target.value)}
+            />
             <div className="grid grid-cols-2 gap-4">
-              <input type="text" placeholder="MM/AA" className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500" readOnly value="12/28" />
-              <input type="text" placeholder="CVC" className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500" readOnly value="123" />
+              <input 
+                type="text" 
+                placeholder="MM/AA" 
+                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 outline-none focus:border-blue-500" 
+                maxLength="5"
+                value={vencimiento}
+                onChange={(e) => setVencimiento(e.target.value)}
+              />
+              <input 
+                type="password" 
+                placeholder="CVC" 
+                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 outline-none focus:border-blue-500" 
+                maxLength="4"
+                value={cvc}
+                onChange={(e) => setCvc(e.target.value)}
+              />
             </div>
           </div>
 

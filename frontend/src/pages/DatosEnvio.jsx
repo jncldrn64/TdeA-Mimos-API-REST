@@ -47,41 +47,14 @@ export default function DatosEnvio() {
     setProcesando(true);
 
     try {
-      const payloadVenta = {
-        total: TotalFinal,
-        items: carrito.map(item => ({
-          id_producto: item.id_producto,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio_unitario
-        }))
-      };
-
-      const resVenta = await fetch(`${API}/api/ventas/checkout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(payloadVenta)
-      });
-
-      if (resVenta.status === 401 || resVenta.status === 403) {
-        alert("Tu sesión ha expirado.");
-        cerrarSesion(); 
-        navigate("/login"); 
-        return;
-      }
-
-      const dataVenta = await resVenta.json();
-
-      if (!dataVenta.success) {
-        alert(`Error: ${dataVenta.message || dataVenta.error}`);
-        setProcesando(false); 
-        return;
-      }
-
+      // Solo pedimos las firmas de Wompi usando un ID temporal (0), la venta real se hará en el siguiente paso
       const resWompi = await fetch(`${API}/api/wompi/parametros`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ id_venta: dataVenta.id_venta, total: TotalFinal })
+        body: JSON.stringify({ id_venta: 0, total: TotalFinal })
       });
+
+      if (verificarSesion && resWompi.status === 401) return;
 
       const dataWompi = await resWompi.json();
 
@@ -89,17 +62,16 @@ export default function DatosEnvio() {
         navigate("/pasarela", { 
           state: { 
             parametrosWompi: dataWompi.data, 
-            id_venta: dataVenta.id_venta,
-            datosEnvio: formEnvio
+            datosEnvio: formEnvio,
+            totalFinal: TotalFinal // Pasamos el total final a la pasarela
           } 
         });
       } else {
         alert("Error al contactar pasarela de pago.");
-        setProcesando(false);
       }
-
     } catch (error) {
       alert("Falla de red.");
+    } finally {
       setProcesando(false);
     }
   };
