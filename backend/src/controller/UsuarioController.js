@@ -17,10 +17,17 @@ const getUsuarios = async (req, res) => {
 
 const postUsuario = async (req, res) => {
     try {
-        const data = await insertarUsuario(req.body);
+        // 🚨 PARCHE DE SEGURIDAD: 
+        // Ignoramos el id_rol que venga del frontend/curl y lo forzamos a 7 (Cliente)
+        // Solo un administrador podrá cambiarlo después a través de la ruta PUT protegida.
+        const payloadSeguro = {
+            ...req.body,
+            id_rol: 7 
+        };
+
+        const data = await insertarUsuario(payloadSeguro);
         res.status(201).json({ success: true, message: "Usuario creado exitosamente" });
     } catch (error) {
-        // Le agregamos el error.message para saber exactamente qué falló en SQL Server
         res.status(500).json({ success: false, message: "Error al crear el usuario: " + error.message });
     }
 };

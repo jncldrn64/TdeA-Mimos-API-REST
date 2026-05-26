@@ -114,6 +114,10 @@ export default function Login() {
             </div>
           </div>
         </div>
+		
+		<div className="flex justify-end mt-1">
+              <Link to="/recuperar" className="text-[10px] text-[var(--color-acento)] font-bold hover:underline">¿Olvidaste tu contraseña?</Link>
+            </div>
 
         {/* Acción de Envío */}
         <div className="pt-2">

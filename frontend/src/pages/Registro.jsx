@@ -34,12 +34,12 @@ export default function Registro() {
     setCargando(true);
 
     try {
-      const payload = {
+const payload = {
         nombre: formData.nombre,
         apellido: formData.apellido,
         email: formData.email,
-        password_hash: formData.password, // ✅ Corregido
-        id_rol: 2,                        // ✅ Corregido (2 = Cliente)
+        password_hash: formData.password, 
+        id_rol: 7,                        // <--- AQUÍ: Cliente = 7
         estado: "activo"
       };
 

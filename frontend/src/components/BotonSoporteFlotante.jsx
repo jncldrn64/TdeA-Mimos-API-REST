@@ -9,13 +9,11 @@ export default function BotonSoporteFlotante() {
   const [cargando, setCargando] = useState(false);
   const [exito, setExito] = useState(false);
   
-  // Estado para las notificaciones
   const [tickets, setTickets] = useState([]);
 
   const API = import.meta.env.VITE_API_URL || "http://localhost:3500";
   const token = localStorage.getItem("token");
 
-  // Consultar tickets silenciosamente para ver si hay respuestas
   useEffect(() => {
     if (usuario && token) {
       fetch(`${API}/api/incidentes/mis-tickets`, {
@@ -31,7 +29,6 @@ export default function BotonSoporteFlotante() {
 
   if (!usuario) return null;
 
-  // Si hay al menos un ticket con respuesta que el usuario deba ver (aquí podrías filtrar por 'Cerrado' o que tenga respuesta)
   const ticketsRespondidos = tickets.filter(t => t.respuesta);
   const hayNotificacion = ticketsRespondidos.length > 0;
 
@@ -50,7 +47,6 @@ export default function BotonSoporteFlotante() {
       const data = await res.json();
       if (data.success) {
         setExito(true);
-        // Agregamos el nuevo ticket falsamente al estado para no tener que recargar
         setTickets([{ ...data.data, estado: 'Abierto' }, ...tickets]);
         setTimeout(() => {
           setAbierto(false);
@@ -68,9 +64,9 @@ export default function BotonSoporteFlotante() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-inherit">
+    <div className="fixed bottom-6 left-6 z-50 font-inherit">
       {abierto && (
-        <div className="absolute bottom-16 right-0 mb-4 w-80 sm:w-96 bg-[var(--color-superficie)] rounded-2xl shadow-2xl border border-[var(--color-borde)] overflow-hidden flex flex-col origin-bottom-right animate-in fade-in zoom-in duration-200">
+        <div className="absolute bottom-16 left-0 mb-4 w-80 sm:w-96 bg-[var(--color-superficie)] rounded-2xl shadow-2xl border border-[var(--color-borde)] overflow-hidden flex flex-col origin-bottom-left animate-in fade-in zoom-in duration-200">
           <div className="bg-[var(--color-primario)] p-4 text-white flex justify-between items-center shadow-md">
             <div>
               <h3 className="font-black text-lg leading-tight">Soporte</h3>
@@ -133,7 +129,6 @@ export default function BotonSoporteFlotante() {
         className="relative w-14 h-14 bg-[var(--color-acento)] hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
         aria-label="Soporte"
       >
-        {/* Notificación Ping */}
         {hayNotificacion && !abierto && (
           <span className="absolute top-0 right-0 flex h-4 w-4">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -142,9 +137,9 @@ export default function BotonSoporteFlotante() {
         )}
 
         {abierto ? (
-           <img src="/img/iconos/x-icon.svg" alt="Cerrar" className="w-5 h-5 filter brightness-0 invert" />
+           <img src="/img/iconos/x-icon.svg" alt="Cerrar" className="w-5 h-5 filter brightness-0 invert" onError={(e)=>e.target.style.display='none'}/>
         ) : (
-           <img src="/img/iconos/soporte.svg" alt="Soporte" className="w-7 h-7 filter brightness-0 invert" />
+           <img src="/img/iconos/soporte.svg" alt="Soporte" className="w-7 h-7 filter brightness-0 invert" onError={(e)=>e.target.style.display='none'}/>
         )}
       </button>
     </div>

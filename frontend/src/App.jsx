@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import BotonSoporteFlotante from "./components/BotonSoporteFlotante.jsx";
+import RecuperarPassword from "./pages/RecuperarPassword.jsx";
 
 import Home from "./pages/Home.jsx";
 import Catalogo from "./pages/Catalogo.jsx";
@@ -56,6 +57,17 @@ export default function App() {
             <Header />
             <main className="main-content">
               <Login />
+            </main>
+            <Footer />
+          </div>
+        } />
+		
+		// ... dentro de <Routes>
+        <Route path="/recuperar" element={
+          <div className="layout-wrapper">
+            <Header />
+            <main className="main-content">
+              <RecuperarPassword />
             </main>
             <Footer />
           </div>
