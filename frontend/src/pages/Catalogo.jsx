@@ -4,17 +4,21 @@ import { useCart } from "../context/CartContext.jsx";
 export default function Catalogo() {
   const { agregarAlCarrito } = useCart();
   
+  // ── ESTADOS DE DATOS ──
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  const [categoriaActiva, setCategoriaActiva] = useState(null); // null = Todos
   const [cargando, setCargando] = useState(true);
+
+  // ── ESTADOS DE FILTROS Y ORDENAMIENTO ──
+  const [categoriaActiva, setCategoriaActiva] = useState(null); // null = Todos
+  const [busqueda, setBusqueda] = useState("");
+  const [orden, setOrden] = useState("default");
 
   const API = import.meta.env.VITE_API_URL || "http://localhost:3500";
 
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        // Hacemos ambas peticiones al mismo tiempo (como en OtraBranch)
         const [resProductos, resCategorias] = await Promise.all([
           fetch(`${API}/api/producto`),
           fetch(`${API}/api/categorias`)
@@ -26,7 +30,6 @@ export default function Catalogo() {
         if (dataProductos.success || dataProductos.length > 0) {
           setProductos(dataProductos.data || dataProductos);
         }
-        
         if (dataCategorias.success) {
           setCategorias(dataCategorias.data);
         }
@@ -36,14 +39,36 @@ export default function Catalogo() {
         setCargando(false);
       }
     };
-
     cargarDatos();
   }, [API]);
 
-  // Filtramos los productos según la categoría seleccionada
-  const productosFiltrados = categoriaActiva 
-    ? productos.filter(p => p.id_categoria === categoriaActiva)
-    : productos;
+  // ── MOTOR DE BÚSQUEDA, FILTRADO Y ORDENAMIENTO ──
+  let productosProcesados = [...productos];
+
+  // 1. Filtrar por Categoría
+  if (categoriaActiva) {
+    productosProcesados = productosProcesados.filter(p => p.id_categoria === categoriaActiva);
+  }
+
+  // 2. Filtrar por Búsqueda de Texto (Nombre o Descripción)
+  if (busqueda.trim() !== "") {
+    const termino = busqueda.toLowerCase();
+    productosProcesados = productosProcesados.filter(p => 
+      p.nombre_producto.toLowerCase().includes(termino) || 
+      (p.descripcion_detallada && p.descripcion_detallada.toLowerCase().includes(termino))
+    );
+  }
+
+  // 3. Ordenamiento
+  if (orden === "precio_asc") {
+    productosProcesados.sort((a, b) => Number(a.precio_unitario) - Number(b.precio_unitario));
+  } else if (orden === "precio_desc") {
+    productosProcesados.sort((a, b) => Number(b.precio_unitario) - Number(a.precio_unitario));
+  } else if (orden === "az") {
+    productosProcesados.sort((a, b) => a.nombre_producto.localeCompare(b.nombre_producto));
+  } else if (orden === "za") {
+    productosProcesados.sort((a, b) => b.nombre_producto.localeCompare(a.nombre_producto));
+  }
 
   if (cargando) {
     return <div className="min-h-[70vh] flex items-center justify-center font-inherit text-[var(--color-texto-suave)] animate-pulse">Cargando menú...</div>;
@@ -51,12 +76,46 @@ export default function Catalogo() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 font-inherit">
-      <div className="text-center mb-12">
+      
+      {/* ── CABECERA DEL MENÚ ── */}
+      <div className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-black text-[var(--color-texto)] mb-4 tracking-tight uppercase">Nuestro Menú</h1>
         <p className="text-[var(--color-texto-suave)] max-w-2xl mx-auto text-sm">Descubre nuestra selección de sabores únicos y especialidades preparadas con la mejor calidad.</p>
       </div>
 
-      {/* ── CHIPS DE CATEGORÍAS (Extraído de la lógica de OtraBranch) ── */}
+      {/* ── PANEL DE BÚSQUEDA Y ORDENAMIENTO ── */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8 bg-[var(--color-superficie)] p-4 rounded-xl border border-[var(--color-borde)] shadow-sm">
+        
+        {/* Buscador */}
+        <div className="flex-1 relative">
+          <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input 
+            type="text" 
+            placeholder="Buscar por nombre o ingrediente..." 
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-[var(--color-fondo)] border border-[var(--color-borde)] rounded-lg text-sm outline-none focus:border-[var(--color-acento)] transition-colors"
+          />
+        </div>
+
+        {/* Selector de Orden */}
+        <div className="md:w-64 relative">
+          <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+          <select 
+            value={orden} 
+            onChange={(e) => setOrden(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-[var(--color-fondo)] border border-[var(--color-borde)] rounded-lg text-sm outline-none focus:border-[var(--color-acento)] transition-colors appearance-none cursor-pointer"
+          >
+            <option value="default">Recomendados</option>
+            <option value="precio_asc">Menor a mayor precio</option>
+            <option value="precio_desc">Mayor a menor precio</option>
+            <option value="az">Alfabético (A - Z)</option>
+            <option value="za">Alfabético (Z - A)</option>
+          </select>
+        </div>
+      </div>
+
+      {/* ── CHIPS DE CATEGORÍAS ── */}
       <div className="flex flex-wrap justify-center gap-2 mb-10">
         <button 
           onClick={() => setCategoriaActiva(null)}
@@ -85,13 +144,15 @@ export default function Catalogo() {
       </div>
 
       {/* ── GRID DE PRODUCTOS ── */}
-      {productosFiltrados.length === 0 ? (
-        <div className="text-center py-20 text-[var(--color-texto-suave)]">
-          No hay productos disponibles en esta categoría por el momento.
+      {productosProcesados.length === 0 ? (
+        <div className="text-center py-20">
+          <div className="w-16 h-16 bg-[var(--color-borde)] text-[var(--color-texto-suave)] rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold opacity-50">?</div>
+          <p className="text-[var(--color-texto-suave)] font-bold">No encontramos helados con esos filtros.</p>
+          <button onClick={() => {setBusqueda(""); setCategoriaActiva(null);}} className="mt-4 text-xs text-[var(--color-acento)] font-bold hover:underline">Limpiar búsqueda</button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productosFiltrados.map((prod) => {
+          {productosProcesados.map((prod) => {
             const agotado = prod.stock_disponible <= 0;
 
             return (
