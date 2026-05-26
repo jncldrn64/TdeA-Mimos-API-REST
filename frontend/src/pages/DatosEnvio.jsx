@@ -54,7 +54,13 @@ export default function DatosEnvio() {
         body: JSON.stringify({ id_venta: 0, total: TotalFinal })
       });
 
-      if (verificarSesion && resWompi.status === 401) return;
+      // ¡Corregido! Ya no usamos la variable fantasma, hacemos la validación directa:
+      if (resWompi.status === 401 || resWompi.status === 403) {
+        alert("Tu sesión ha expirado.");
+        cerrarSesion(); 
+        navigate("/login"); 
+        return;
+      }
 
       const dataWompi = await resWompi.json();
 
@@ -70,7 +76,8 @@ export default function DatosEnvio() {
         alert("Error al contactar pasarela de pago.");
       }
     } catch (error) {
-      alert("Falla de red.");
+      console.error(error); // Por si acaso, lo imprimimos en consola
+      alert("Falla de red al intentar contactar la pasarela.");
     } finally {
       setProcesando(false);
     }
