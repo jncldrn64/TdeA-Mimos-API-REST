@@ -65,6 +65,21 @@ public class ProductoController {
         }
     }
 
+    // PUT /api/productos/5
+    // Mismo JSON que el POST, pero ahora actualiza en lugar de crear.
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizar(
+            @PathVariable Long id,
+            @RequestBody CrearProductoDTO datos) {
+        try {
+            return productoService.actualizar(id, datos)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // DELETE /api/productos/5
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {

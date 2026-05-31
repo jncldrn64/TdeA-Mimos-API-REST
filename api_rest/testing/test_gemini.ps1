@@ -1,8 +1,10 @@
 Write-Host "======================================================" -ForegroundColor Magenta
-Write-Host " SCRIPT INTELIGENTE E2E - CICLO DE VIDA COMPLETO" -ForegroundColor Green
+Write-Host " SCRIPT E2E DEFINITIVO: VALIDACION TOTAL Y DATOS SEMILLA" -ForegroundColor Green
 Write-Host "======================================================" -ForegroundColor Magenta
 
-# Funcion inteligente que interactua con la API y maneja los JSON sola
+# ---------------------------------------------------------
+# FUNCION BASE DE COMUNICACION HTTP
+# ---------------------------------------------------------
 function Invoke-MimosApi {
     param([string]$Metodo, [string]$Endpoint, [string]$BodyJson)
     
@@ -24,10 +26,8 @@ function Invoke-MimosApi {
 
     try {
         $jsonObj = $resp | ConvertFrom-Json
-        # Imprime el JSON formateado bonito
         Write-Host ($jsonObj | ConvertTo-Json -Depth 5) -ForegroundColor DarkGreen
         
-        # Si Spring Boot arroja un error controlado, lo detectamos
         if ($null -ne $jsonObj.status -and $null -ne $jsonObj.error) {
             Write-Host "  [!] ERROR HTTP $($jsonObj.status): $($jsonObj.message)" -ForegroundColor Red
         }
@@ -39,50 +39,93 @@ function Invoke-MimosApi {
 }
 
 # =========================================================
-# EJECUCION DEL FLUJO DE NEGOCIO DINAMICO
+# FASES 1-7: EL CICLO DE VIDA BASE (Ya lo validamos)
 # =========================================================
 
-# 1. Crear una Categoria Nueva
-Write-Host "`n[PASO 1] Creando una Categoria de catalogo..." -ForegroundColor Yellow
-$catData = @{ nombre = "Postres Premium"; descripcion = "Generado por Script E2E" }
-$cat = Invoke-MimosApi "POST" "categorias" ($catData | ConvertTo-Json)
-$idCat = $cat.idCategoria
+Write-Host "`n--- CREANDO FLUJO BASE DE PRUEBA ---" -ForegroundColor DarkGray
+$catData = @{ nombre = "Postres E2E"; descripcion = "Generado por Script E2E" }
+$idCat = (Invoke-MimosApi "POST" "categorias" ($catData | ConvertTo-Json)).idCategoria
 
-# 2. Crear un Producto asociado a esa nueva Categoria
-Write-Host "`n[PASO 2] Creando un Producto en la Categoria $idCat..." -ForegroundColor Yellow
-$prodData = @{ nombreProducto = "Torta de Chocolate E2E"; precioUnitario = 45000; stockDisponible = 5; idCategoria = $idCat }
-$prod = Invoke-MimosApi "POST" "productos" ($prodData | ConvertTo-Json)
-$idProd = $prod.idProducto
+$prodData = @{ nombreProducto = "Helado Basico"; precioUnitario = 1000; stockDisponible = 50; idCategoria = $idCat }
+$idProd = (Invoke-MimosApi "POST" "productos" ($prodData | ConvertTo-Json)).idProducto
 
-# 3. Crear una Venta Nueva (Asumiendo que el Usuario 1 existe)
-Write-Host "`n[PASO 3] Creando una Factura nueva para el Usuario 1..." -ForegroundColor Yellow
-$ventaData = @{ comprador = @{ idUsuario = 1 }; total = 90000; cedulaComprador = "987654321"; metodoPago = "Tarjeta" }
-$venta = Invoke-MimosApi "POST" "ventas" ($ventaData | ConvertTo-Json -Depth 3)
-$idVenta = $venta.id
+$ventaData = @{ comprador = @{ idUsuario = 1 }; total = 2000; cedulaComprador = "111"; metodoPago = "Efectivo" }
+$idVenta = (Invoke-MimosApi "POST" "ventas" ($ventaData | ConvertTo-Json -Depth 3)).id
 
-# 4. Agregar Detalle a la Venta
-Write-Host "`n[PASO 4] Agregando 2 Tortas a la Factura $idVenta..." -ForegroundColor Yellow
-$detData = @{ venta = @{ id = $idVenta }; producto = @{ idProducto = $idProd }; cantidad = 2; precioUnitario = 45000 }
-$detalle = Invoke-MimosApi "POST" "detalle-ventas" ($detData | ConvertTo-Json -Depth 3)
+$detData = @{ venta = @{ id = $idVenta }; producto = @{ idProducto = $idProd }; cantidad = 2; precioUnitario = 1000 }
+Invoke-MimosApi "POST" "detalle-ventas" ($detData | ConvertTo-Json -Depth 3)
 
-# 5. Despachar la Venta (Envio)
-Write-Host "`n[PASO 5] Generando el Envio para la Factura $idVenta..." -ForegroundColor Yellow
-$envioData = @{ ventaId = $idVenta; direccion = "Carrera 80 # 45-12"; ciudad = "Medellin" }
-$envio = Invoke-MimosApi "POST" "envios" ($envioData | ConvertTo-Json)
-$idEnvio = $envio.idEnvio
+$envioData = @{ ventaId = $idVenta; direccion = "Test 123"; ciudad = "Medellin" }
+$idEnvio = (Invoke-MimosApi "POST" "envios" ($envioData | ConvertTo-Json)).idEnvio
 
-# 6. Registrar una PQRS sobre esa Venta
-Write-Host "`n[PASO 6] El Usuario 1 abre un Reclamo (PQRS) sobre la Venta $idVenta..." -ForegroundColor Yellow
-$pqrsData = @{ usuarioId = 1; ventaId = $idVenta; asunto = "Caja Danada"; mensaje = "La torta llego aplastada" }
-$pqrs = Invoke-MimosApi "POST" "pqrs" ($pqrsData | ConvertTo-Json)
-$idPqrs = $pqrs.idPqrs
+$pqrsData = @{ usuarioId = 1; ventaId = $idVenta; asunto = "Test"; mensaje = "Mensaje Test" }
+$idPqrs = (Invoke-MimosApi "POST" "pqrs" ($pqrsData | ConvertTo-Json)).idPqrs
 
-# 7. Comprobacion Final de Lectura (GET)
-Write-Host "`n[PASO 7] Verificando que la DB guardo todo..." -ForegroundColor Yellow
-Invoke-MimosApi "GET" "envios/venta/$idVenta" ""
-Invoke-MimosApi "GET" "pqrs/$idPqrs" ""
+# =========================================================
+# FASE 8: VALIDANDO LOS PUT (Lo que ya hicimos)
+# =========================================================
+Write-Host "`n======================================================" -ForegroundColor Magenta
+Write-Host " FASE 8: VALIDANDO PUT (CATALOGOS)" -ForegroundColor Green
+Write-Host "======================================================" -ForegroundColor Magenta
+
+# 8.1 Actualizar la Categoria
+Write-Host "`n[PASO 8.1] Actualizando Categoria $idCat..." -ForegroundColor Yellow
+$catUpdateData = @{ nombre = "Postres E2E PREMIUM"; descripcion = "Descripcion actualizada" }
+Invoke-MimosApi "PUT" "categorias/$idCat" ($catUpdateData | ConvertTo-Json)
+
+# 8.2 Actualizar el Producto
+Write-Host "`n[PASO 8.2] Actualizando Producto $idProd..." -ForegroundColor Yellow
+$prodUpdateData = @{ nombreProducto = "Helado Premium Plus"; precioUnitario = 5000; stockDisponible = 10; idCategoria = $idCat }
+Invoke-MimosApi "PUT" "productos/$idProd" ($prodUpdateData | ConvertTo-Json)
+
+# =========================================================
+# FASE 9: PREDICCION DE LO QUE HARA LA OTRA IA (NUEVO)
+# =========================================================
+Write-Host "`n======================================================" -ForegroundColor Magenta
+Write-Host " FASE 9: VALIDANDO PATCH (ESTADOS DE TRANSACCION)" -ForegroundColor Green
+Write-Host "======================================================" -ForegroundColor Magenta
+Write-Host " NOTA: Estos fallaran con 404/405 hasta que la otra IA te de el codigo." -ForegroundColor DarkGray
+
+# 9.1 Actualizar Estado del Envio (Prediciendo que usara PATCH o PUT con JSON plano)
+Write-Host "`n[PASO 9.1] Intentando marcar el Envio $idEnvio como 'entregado'..." -ForegroundColor Yellow
+$envioPatchData = @{ estadoEnvio = "entregado" }
+# Usamos PUT como suposicion, pero quizas la IA decida usar PATCH
+Invoke-MimosApi "PUT" "envios/$idEnvio/estado" ($envioPatchData | ConvertTo-Json)
+
+# 9.2 Responder una PQRS
+Write-Host "`n[PASO 9.2] Intentando responder y cerrar el PQRS $idPqrs..." -ForegroundColor Yellow
+$pqrsPatchData = @{ respuesta = "Sentimos el inconveniente. Le enviamos un cupon."; estado = "cerrado" }
+Invoke-MimosApi "PUT" "pqrs/$idPqrs/responder" ($pqrsPatchData | ConvertTo-Json)
+
+
+# =========================================================
+# FASE 10: DATOS QUEMADOS (SEED) PARA POSTMAN / FRONTEND
+# =========================================================
+Write-Host "`n======================================================" -ForegroundColor Magenta
+Write-Host " FASE 10: INYECTANDO DATOS DE MUESTRA PARA POSTMAN" -ForegroundColor Green
+Write-Host "======================================================" -ForegroundColor Magenta
+
+# Preguntamos si quiere inyectar los datos (para no saturar la DB sin permiso)
+$respuesta = Read-Host "¿Quieres inyectar categorias y productos de muestra para probar en Postman? (s/n)"
+
+if ($respuesta -eq "s") {
+    Write-Host "`nInyectando datos semilla..." -ForegroundColor Yellow
+    
+    # Categorias de Muestra
+    $c1 = Invoke-MimosApi "POST" "categorias" (@{ nombre = "Bebidas Frias"; descripcion = "Gaseosas y Jugos" } | ConvertTo-Json)
+    $c2 = Invoke-MimosApi "POST" "categorias" (@{ nombre = "Paletas"; descripcion = "Paletas de agua y leche" } | ConvertTo-Json)
+    
+    # Productos de Muestra usando los IDs generados arriba
+    Invoke-MimosApi "POST" "productos" (@{ nombreProducto = "Gaseosa Cola 500ml"; precioUnitario = 3500; stockDisponible = 100; idCategoria = $c1.idCategoria } | ConvertTo-Json)
+    Invoke-MimosApi "POST" "productos" (@{ nombreProducto = "Jugo de Naranja Natural"; precioUnitario = 4000; stockDisponible = 30; idCategoria = $c1.idCategoria } | ConvertTo-Json)
+    Invoke-MimosApi "POST" "productos" (@{ nombreProducto = "Paleta de Mango Biche"; precioUnitario = 2500; stockDisponible = 200; idCategoria = $c2.idCategoria } | ConvertTo-Json)
+    Invoke-MimosApi "POST" "productos" (@{ nombreProducto = "Paleta de Ron con Pasas"; precioUnitario = 3000; stockDisponible = 150; idCategoria = $c2.idCategoria } | ConvertTo-Json)
+
+    Write-Host "`n[OK] Datos de muestra inyectados exitosamente. ¡Abre Postman y lanza un GET a /api/productos!" -ForegroundColor Green
+} else {
+    Write-Host "`n[SKIPPED] No se inyectaron datos adicionales." -ForegroundColor DarkGray
+}
 
 Write-Host "`n======================================================" -ForegroundColor Magenta
-Write-Host " SIMULACION E2E COMPLETADA CON EXITO" -ForegroundColor Green
-Write-Host " La base de datos MimosDemo ha procesado una compra real."
+Write-Host " VALIDACION FINALIZADA" -ForegroundColor Green
 Write-Host "======================================================" -ForegroundColor Magenta

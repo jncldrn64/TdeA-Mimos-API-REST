@@ -37,7 +37,17 @@ public class CategoriaController {
         CategoriaDTO creada = categoriaService.crear(categoria);
         return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
-
+    // PUT /api/categorias/1
+    // Body JSON: { "nombre": "Helados Premium", "descripcion": "Nueva descripcion" }
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoriaDTO> actualizar(
+            @PathVariable Long id,
+            @RequestBody Categoria datos) {
+        return categoriaService.actualizar(id, datos)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
     // DELETE /api/categorias/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {

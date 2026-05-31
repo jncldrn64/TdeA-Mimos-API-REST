@@ -87,6 +87,33 @@ public class ProductoService {
         return toDTO(productoRepository.save(nuevo));
     }
 
+
+    public Optional<ProductoDTO> actualizar(Long id, CrearProductoDTO datos) {
+        return productoRepository.findById(id).map(existente -> {
+            // Resolvemos la categoría primero, antes de modificar la entidad.
+            // Si se envía idCategoria, debe existir. Si se envía null, se desvincula.
+            if (datos.getIdCategoria() != null) {
+                Categoria categoria = categoriaRepository
+                        .findById(datos.getIdCategoria())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Categoría no encontrada con id: " + datos.getIdCategoria()));
+                existente.setCategoria(categoria);
+            } else {
+                existente.setCategoria(null);
+            }
+            existente.setNombreProducto(datos.getNombreProducto());
+            existente.setDescripcionDetallada(datos.getDescripcionDetallada());
+            existente.setPrecioUnitario(datos.getPrecioUnitario());
+            existente.setStockDisponible(datos.getStockDisponible());
+            existente.setUrlImagen(datos.getUrlImagen());
+            existente.setFechaUltimoRestock(datos.getFechaUltimoRestock());
+            // fechaIngreso y estaActivo NO se tocan: updatable=false en la Entity
+            // los protege a nivel de Hibernate igualmente, pero dejamos claro el intento.
+            return toDTO(productoRepository.save(existente));
+        });
+    }
+
+    
     public void eliminar(Long id) {
         productoRepository.deleteById(id);
     }

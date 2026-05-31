@@ -42,6 +42,14 @@ public class CategoriaService {
         return toDTO(guardada);
     }
 
+    public Optional<CategoriaDTO> actualizar(Long id, Categoria datos) {
+        return categoriaRepository.findById(id).map(existente -> {
+            existente.setNombre(datos.getNombre());
+            existente.setDescripcion(datos.getDescripcion());
+            return toDTO(categoriaRepository.save(existente));
+        });
+    }
+
     public void eliminar(Long id) {
         categoriaRepository.deleteById(id);
     }
