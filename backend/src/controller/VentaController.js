@@ -5,13 +5,13 @@ import sql from 'mssql'; // <-- Importación para tipos de datos SQL
 export const procesarCheckout = async (req, res) => {
   try {
     const id_usuario = req.usuario.id || req.usuario.id_usuario || req.usuario.sub; 
-    const { total, items } = req.body;
+    const { total, items, cedula_comprador, metodo_pago } = req.body;
 
     if (!id_usuario) return res.status(401).json({ success: false, message: 'No se detectó el ID del usuario en el token.' });
     if (!items || items.length === 0) return res.status(400).json({ success: false, message: 'El carrito está vacío.' });
     if (!total || total <= 0) return res.status(400).json({ success: false, message: 'El total de la compra es inválido.' });
 
-    const id_venta = await registrarCheckout(id_usuario, total, items);
+    const id_venta = await registrarCheckout(id_usuario, total, items, cedula_comprador, metodo_pago);
 
     res.status(201).json({ success: true, message: 'Compra procesada exitosamente', id_venta: id_venta });
 

@@ -1,23 +1,23 @@
 import { sql, poolConect } from '../config/db.js';
 
-const registrarCheckout = async (id_usuario, total, items) => {
+const registrarCheckout = async (id_usuario, total, items, cedula_comprador, metodo_pago) => {
   const pool = await poolConect();
   
   try {
-    // Convertimos el array de Javascript a un String JSON para SQL Server
     const itemsJSON = JSON.stringify(items);
 
     const result = await pool.request()
       .input('usuario_id', sql.BigInt, id_usuario)
       .input('total', sql.Decimal(18, 2), total)
       .input('itemsJSON', sql.NVarChar(sql.MAX), itemsJSON)
+      // Agregamos los parámetros para la BD
+      .input('cedula_comprador', sql.VarChar, cedula_comprador || 'Consumidor Final')
+      .input('metodo_pago', sql.VarChar, metodo_pago || 'WOMPI')
       .execute('sp_ProcesarCheckout');
 
-    // Retornamos el id_venta generado
     return result.recordset[0].id_venta;
 
   } catch (error) {
-    // Capturamos el error (ej: "Stock insuficiente para: Copa Euforia")
     throw new Error(error.message);
   }
 };
@@ -30,7 +30,13 @@ export const obtenerPedidosPorUsuario = async (id_usuario) => {
     const result = await conn.request()
       .input('id_usuario', sql.BigInt, id_usuario)
       .query(`
-        SELECT id, total, fecha, estado 
+        SELECT 
+          id, 
+          total, 
+          fecha, 
+          estado,
+          cedula_comprador, /* <-- ¡El eslabón perdido! */
+          metodo_pago       /* <-- ¡El eslabón perdido! */
         FROM Ventas 
         WHERE usuario_id = @id_usuario 
         ORDER BY fecha DESC

@@ -1,6 +1,6 @@
 node_modules/
-.env
 .env.local
 dist/
 build/
 *.lnk
+/api_rest/target/
