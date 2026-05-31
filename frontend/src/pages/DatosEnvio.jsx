@@ -21,6 +21,7 @@ export default function DatosEnvio() {
   const TotalFinal = Math.round(TotalBase + costoEnvio); 
 
   const [formEnvio, setFormEnvio] = useState({
+    cedula: "", // <-- NUEVO CAMPO
     direccion: "",
     ciudad: "Medellín",
     telefono: "",
@@ -39,8 +40,8 @@ export default function DatosEnvio() {
   const handleProcesarCheckout = async (e) => {
     if (e) e.preventDefault();
     
-    if (!formEnvio.direccion || !formEnvio.telefono || formEnvio.telefono.length < 7) {
-      alert("Por favor, completa una dirección válida y un teléfono de contacto.");
+if (!formEnvio.cedula || !formEnvio.direccion || !formEnvio.telefono || formEnvio.telefono.length < 7) {
+      alert("La Cédula, Dirección y Teléfono son obligatorios para la facturación.");
       return;
     }
 
@@ -129,6 +130,18 @@ export default function DatosEnvio() {
                     <option value="Itagüí">Itagüí</option>
                   </select>
                 </div>
+                <div className="mb-4">
+                <label className="block text-xs font-bold text-[var(--color-texto-suave)] mb-1">Cédula o NIT para Facturación *</label>
+                <input 
+                  type="text" placeholder="Ej: 1000222333" required
+                  value={formEnvio.cedula} onChange={(e) => setFormEnvio({...formEnvio, cedula: e.target.value.replace(/[^0-9]/g, '')})}
+                  className="w-full p-3 bg-[var(--color-superficie)] border border-[var(--color-borde)] rounded-lg text-sm outline-none focus:border-[var(--color-acento)] transition-colors"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+              </div>
                 <div>
                   <label className="block text-xs font-bold text-[var(--color-texto-suave)] mb-1">Teléfono Móvil *</label>
                   <input 

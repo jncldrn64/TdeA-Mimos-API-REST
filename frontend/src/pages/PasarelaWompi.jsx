@@ -6,7 +6,6 @@ export default function PasarelaWompi() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // ¡Todos los hooks viven adentro del componente!
   const { carrito, vaciarCarrito } = useCart();
   const [tarjeta, setTarjeta] = useState("");
   const [cvc, setCvc] = useState("");
@@ -32,27 +31,34 @@ export default function PasarelaWompi() {
     );
   }
 
+  // ✅ CORRECCIÓN: Se agregó la palabra "async" aquí
   const simularPago = async () => {
-    // 1. Validación estricta
+    // 1. VALIDACIÓN BANCARIA ESTRICTA (Sandbox)
     if (metodo === 'tarjeta') {
       const numerosTarjeta = tarjeta.replace(/\D/g, '');
-      if (numerosTarjeta.length < 16) {
-        return alert("El número de tarjeta debe tener al menos 16 dígitos.");
+      
+      if (numerosTarjeta !== parametrosWompi.tarjetaTest) {
+        return alert(`❌ Transacción Rechazada por el Banco.\n\nFondos insuficientes o tarjeta no autorizada.\n(Revisa la terminal de Node.js para ver la tarjeta mágica de pruebas).`);
       }
-      if (cvc.length < 3) {
-        return alert("El código de seguridad (CVC) no es válido.");
+      if (cvc !== parametrosWompi.cvcTest) {
+        return alert("❌ Transacción Rechazada.\n\nEl código de seguridad (CVC) es incorrecto.");
+      }
+      if (!vencimiento || vencimiento.length < 5) {
+        return alert("Ingresa una fecha de vencimiento válida (MM/AA).");
       }
     }
 
     setProcesando(true);
 
     try {
-      // 2. Simulamos la latencia del banco (2 segundos)
+      // 2. Simulamos la latencia de red del Banco (2 segundos)
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // 3. ¡AHORA SÍ! Transacción real en SQL Server
+      // 3. Venta real en la Base de Datos
       const payloadVenta = {
         total: totalFinal,
+        cedula_comprador: location.state?.datosEnvio?.cedula || "Consumidor Final", 
+        metodo_pago: metodo.toUpperCase(),
         items: carrito.map(item => ({
           id_producto: item.id_producto,
           cantidad: item.cantidad,
@@ -69,14 +75,14 @@ export default function PasarelaWompi() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        alert(`¡Pago Aprobado exitosamente!\nReferencia Wompi: ${parametrosWompi.referencia}\nTu número de pedido es el #${data.id_venta}`);
+        alert(`✅ ¡Pago Aprobado exitosamente!\n\nReferencia Wompi: ${parametrosWompi.referencia}\nTu número de pedido en Mimos es el #${data.id_venta}`);
         vaciarCarrito();
-        navigate("/pedidos"); // Redirigimos al historial de pedidos para que vean el recibo
+        navigate("/pedidos");
       } else {
-        alert(data.message || "Error al procesar la orden en la base de datos. Es posible que el stock se haya agotado.");
+        alert(data.message || "Error al procesar la orden. Es posible que el stock se haya agotado.");
       }
     } catch (error) {
-      alert("Error de conexión. Tu tarjeta no fue cargada.");
+      alert("Error de conexión con la pasarela.");
     } finally {
       setProcesando(false);
     }
@@ -132,7 +138,7 @@ export default function PasarelaWompi() {
               className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 outline-none focus:border-blue-500" 
               maxLength="16"
               value={tarjeta}
-              onChange={(e) => setTarjeta(e.target.value)}
+              onChange={(e) => setTarjeta(e.target.value.replace(/[^0-9]/g, ''))}
             />
             <div className="grid grid-cols-2 gap-4">
               <input 
@@ -149,7 +155,7 @@ export default function PasarelaWompi() {
                 className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 outline-none focus:border-blue-500" 
                 maxLength="4"
                 value={cvc}
-                onChange={(e) => setCvc(e.target.value)}
+                onChange={(e) => setCvc(e.target.value.replace(/[^0-9]/g, ''))}
               />
             </div>
           </div>
