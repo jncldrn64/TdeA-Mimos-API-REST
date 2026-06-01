@@ -4,3 +4,5 @@ dist/
 build/
 *.lnk
 /api_rest/target/
+
+api_rest/backend/target/

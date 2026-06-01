@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+:root {
+  --color-fondo: #f3f4f6; /* Gris muy claro */
+  --color-superficie: #ffffff; /* Blanco */
+  --color-borde: #e5e7eb; /* Gris claro para bordes */
+  --color-texto: #1f2937; /* Gris oscuro para textos */
+  --color-texto-suave: #6b7280; /* Gris medio para etiquetas */
+  --color-acento: #f97316; /* Naranja Mimos */
+  --color-secundario-soft: #fff7ed; /* Naranja muy suave para tablas */
+}
+
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+}
