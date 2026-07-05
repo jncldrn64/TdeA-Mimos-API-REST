@@ -1,8 +1,7 @@
 node_modules/
+frontend/node_modules/
 .env.local
 dist/
 build/
 *.lnk
-/api_rest/target/
-
-api_rest/backend/target/
+backend/target/
