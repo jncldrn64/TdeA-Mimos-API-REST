@@ -1,0 +1,169 @@
+
+<style>
+#erd { padding: 0.5rem 0; }
+#erd svg { width: 100%; }
+</style>
+<div id="erd"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+    primaryColor: dark ? '#3C3489' : '#EEEDFE',
+    primaryTextColor: dark ? '#CECBF6' : '#3C3489',
+    primaryBorderColor: dark ? '#7F77DD' : '#AFA9EC',
+    secondaryColor: dark ? '#085041' : '#E1F5EE',
+    secondaryTextColor: dark ? '#9FE1CB' : '#0F6E56',
+    secondaryBorderColor: dark ? '#1D9E75' : '#5DCAA5',
+    tertiaryColor: dark ? '#3B6D11' : '#EAF3DE',
+    tertiaryTextColor: dark ? '#C0DD97' : '#3B6D11',
+    tertiaryBorderColor: dark ? '#639922' : '#97C459',
+    noteBorderColor: dark ? '#5F5E5A' : '#B4B2A9',
+    noteBkgColor: dark ? '#444441' : '#F1EFE8',
+    noteTextColor: dark ? '#D3D1C7' : '#5F5E5A',
+    attributeBackgroundColorEven: dark ? '#2a2a28' : '#f8f7f4',
+    attributeBackgroundColorOdd: dark ? '#222220' : '#ffffff',
+  },
+  er: {
+    diagramPadding: 20,
+    useMaxWidth: true,
+    entityPadding: 15,
+    fontSize: 13
+  }
+});
+
+const diagram = `erDiagram
+    Roles {
+        BIGINT id_rol PK
+        VARCHAR nombre
+        VARCHAR descripcion
+    }
+    Usuarios {
+        BIGINT id_usuario PK
+        BIGINT id_rol FK
+        VARCHAR nombre
+        VARCHAR apellido
+        VARCHAR email
+        VARCHAR password_hash
+        VARCHAR estado
+        DATETIME created_at
+    }
+    Categorias {
+        BIGINT id_categoria PK
+        VARCHAR nombre
+        VARCHAR descripcion
+    }
+    Productos {
+        BIGINT id_producto PK
+        BIGINT id_categoria FK
+        VARCHAR nombre_producto
+        VARCHAR descripcion_detallada
+        DECIMAL precio_unitario
+        INT stock_disponible
+        VARCHAR url_imagen
+        DATETIME fecha_ingreso
+        DATETIME fecha_ultimo_restock
+        BIT esta_activo
+    }
+    Carrito {
+        BIGINT id_carrito PK
+        BIGINT usuario_id FK
+        DATETIME creado_at
+    }
+    CarritoItem {
+        BIGINT id_item PK
+        BIGINT id_carrito FK
+        BIGINT id_producto FK
+        INT cantidad
+        DECIMAL precio_snapshot
+    }
+    Ventas {
+        BIGINT id PK
+        BIGINT comprador_id FK
+        BIGINT procesado_por FK
+        DECIMAL total
+        DATETIME fecha
+        VARCHAR estado
+        VARCHAR cedula_comprador
+        VARCHAR metodo_pago
+        VARCHAR referencia_pago
+    }
+    DetalleVenta {
+        BIGINT id PK
+        BIGINT venta_id FK
+        BIGINT producto_id FK
+        INT cantidad
+        DECIMAL precio_unitario
+    }
+    Envios {
+        BIGINT id_envio PK
+        BIGINT venta_id FK
+        VARCHAR direccion
+        VARCHAR ciudad
+        VARCHAR estado_envio
+        DATETIME fecha_despacho
+        DATETIME fecha_entrega_estimada
+        DATETIME fecha_entrega_real
+    }
+    PQRS {
+        BIGINT id_pqrs PK
+        BIGINT usuario_id FK
+        BIGINT venta_id FK
+        VARCHAR asunto
+        VARCHAR mensaje
+        VARCHAR estado
+        DATETIME fecha_creacion
+        VARCHAR respuesta
+        DATETIME fecha_respuesta
+    }
+
+    Roles ||--o{ Usuarios : "tiene rol"
+    Usuarios ||--o{ Carrito : "tiene"
+    Usuarios ||--o{ Ventas : "compra (comprador_id)"
+    Usuarios ||--o{ Ventas : "gestiona (procesado_por)"
+    Usuarios ||--o{ PQRS : "abre"
+    Categorias |o--o{ Productos : "clasifica"
+    Carrito ||--o{ CarritoItem : "contiene"
+    Productos ||--o{ CarritoItem : "está en"
+    Ventas ||--o{ DetalleVenta : "detalla"
+    Productos ||--o{ DetalleVenta : "vendido en"
+    Ventas ||--o| Envios : "genera"
+    Ventas |o--o{ PQRS : "referenciada en"
+`;
+
+const { svg } = await mermaid.render('erd-svg', diagram);
+document.getElementById('erd').innerHTML = svg;
+
+document.querySelectorAll('#erd svg .node').forEach(node => {
+    const firstPath = node.querySelector('path[d]');
+    if (!firstPath) return;
+    const d = firstPath.getAttribute('d');
+    const nums = d.match(/-?[\d.]+/g)?.map(Number);
+    if (!nums || nums.length < 8) return;
+    const xs = [nums[0], nums[2], nums[4], nums[6]];
+    const ys = [nums[1], nums[3], nums[5], nums[7]];
+    const x = Math.min(...xs), y = Math.min(...ys);
+    const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', x); rect.setAttribute('y', y);
+    rect.setAttribute('width', w); rect.setAttribute('height', h);
+    rect.setAttribute('rx', '8');
+    for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+        if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+    }
+    firstPath.replaceWith(rect);
+});
+
+document.querySelectorAll('#erd svg .row-rect-odd path, #erd svg .row-rect-even path').forEach(p => {
+    p.setAttribute('stroke', 'none');
+});
+</script>
