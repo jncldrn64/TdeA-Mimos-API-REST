@@ -12,8 +12,7 @@ monolito Node.js de 3 capas con frontend, backend y lógica acoplados; este repo
 reemplaza por una API Spring Boot contra una base SQL Server normalizada en 3FN
 (`MimosDemo`), más un frontend React de administración. Es fork de
 `JackelineAristizabal/ventasMimosPPI` (merge `df0cfe0`, 2026-05-25), con 46 commits desde
-el 2026-04-23. No confundir con TdeA-Mimos-Website: mismo dueño, misma marca, proyecto y
-código distintos.
+el 2026-04-23.
 
 Monorepo de tres piezas, reestructurado a la raíz el 2026-07-05 (commit `ae56298`):
 
@@ -36,8 +35,8 @@ Controller → Service → Repository → Entity
 
 El controlador recibe y devuelve DTOs, nunca entidades crudas. El servicio arma la
 entidad, aplica las reglas de negocio y habla con el repositorio (Spring Data JPA). No
-hay capa de casos de uso ni puertos: son 5 capas contadas con DTO y base de datos, no la
-arquitectura hexagonal del Website.
+hay capa de casos de uso ni puertos: son 5 capas contadas con DTO y base de datos, y no
+se retrofitea ninguna otra arquitectura encima.
 
 Los 45 endpoints, contados por anotación en los 10 controladores:
 
@@ -148,7 +147,8 @@ Entity los protege"); mantené esa línea.
   usuario y la contraseña reales de `MimosDemo` en texto plano, y la misma contraseña
   aparecía repetida en 8 de los 12 archivos `status/` borrados. Borrarlos no la saca del
   historial de git: la credencial se rota y se externaliza (Fase 1 del roadmap), no se
-  "esconde".
+  "esconde". El proyecto es educativo y no está desplegado en ningún ambiente real, así
+  que el impacto hoy es una base demo local; la higiene cuesta lo mismo igual.
 - **Cero autenticación.** No hay Spring Security ni JWT: cualquiera con acceso a la red
   puede ejecutar `DELETE /api/usuarios/1`. BCrypt hashea contraseñas al registrar
   usuarios, pero ningún endpoint exige identidad. Fase 2 del roadmap.

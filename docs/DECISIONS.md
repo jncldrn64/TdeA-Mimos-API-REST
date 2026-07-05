@@ -18,8 +18,8 @@ que el estándar de los otros repos del dueño prohíbe: un archivo por ronda. E
 un estado del arte sino la "Guía Definitiva" (el nombre engaña), y dos documentos se
 contradicen sobre el bug de `Producto` (ver la entrada siguiente).
 
-**Decisión:** se adopta el estándar completo de TdeA-Mimos-Website / TL-FCCU /
-MIDI-Scale-Trainer: `CLAUDE.md` y `CHANGELOG.md` en la raíz, `docs/` con
+**Decisión:** se adopta el estándar completo que ya comparten los demás repos del
+autor: `CLAUDE.md` y `CHANGELOG.md` en la raíz, `docs/` con
 `ARCHITECTURE.md`, `ROADMAP.md` y `DECISIONS.md`. Los 24 archivos de `status/` se
 borran; lo vigente, corregido contra el código, vive en `docs/`. El único contenido que
 sobrevive tal cual es el diagrama entidad-relación, movido a `docs/modelo-er.html`.

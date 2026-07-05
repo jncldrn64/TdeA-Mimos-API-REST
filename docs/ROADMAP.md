@@ -18,7 +18,9 @@ Lo que sigue es lo que de verdad falta, en orden de urgencia.
 
 La contraseña real de `MimosDemo` está commiteada en `application.properties` y quedó
 repetida en el historial de git (estaba en 8 de los 12 `status/` borrados en v1.0).
-Borrar archivos no la revoca: cualquiera que clone el repo la lee con `git log -p`.
+Borrar archivos no la revoca: cualquiera que clone el repo la lee con `git log -p`. El
+proyecto es educativo y sin despliegue real, así que lo expuesto es una base demo en un
+contenedor local; rotar y externalizar cuesta minutos y deja el hábito correcto.
 
 1. Rotar la credencial en el SQL Server (nueva contraseña para `api_mimos_user`, o un
    usuario nuevo y se elimina el viejo).

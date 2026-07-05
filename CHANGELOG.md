@@ -16,8 +16,7 @@ configuración de la aplicación cambió.
 - `CLAUDE.md`: estándar del proyecto (documentación canónica, CHANGELOG, DECISIONS,
   fechas ISO, commits `{add, chg, fix, rmv, doc}`, prosa con los skills `no-ai-slop` y
   `rossmann-voice`, honestidad de estado, scope de escritura, versión única con
-  `backend/pom.xml` y `frontend/package.json`). Incluye el aviso de que este repo no es
-  TdeA-Mimos-Website.
+  `backend/pom.xml` y `frontend/package.json`).
 - `CHANGELOG.md`: este registro.
 - `docs/ARCHITECTURE.md`: mapa del sistema verificado contra el código el 2026-07-05
   (57 archivos Java, 45 endpoints en 10 controladores, 10 páginas React, 10 tablas en

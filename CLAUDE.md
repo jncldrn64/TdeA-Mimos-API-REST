@@ -3,12 +3,6 @@
 Reglas que valen en cada sesión. Se leen antes de tocar nada. Este archivo fija el
 estándar de documentación y formato; el mapa técnico vive en `docs/ARCHITECTURE.md`.
 
-Aviso de identidad: este repo NO es TdeA-Mimos-Website, por mucho que el nombre se
-parezca. Es la reconstrucción como API REST del sistema de ventas Mimos, fork de
-`JackelineAristizabal/ventasMimosPPI` (merge `df0cfe0`, 2026-05-25). Otro código, otra
-base de datos, otras convenciones. No se traen para acá reglas de aquel repo (arquitectura
-hexagonal, casos de uso): acá no existen y no se retrofitean.
-
 ## Documentación
 
 La documentación vive en `docs/`. Los archivos canónicos son tres: `ARCHITECTURE.md`,
@@ -98,8 +92,8 @@ commitear.
 
 Este repo (TdeA-Mimos-API-REST) es el único destino de escritura. Cualquier otro
 repositorio clonado en la sesión es solo lectura y contexto: se copia DESDE él, nunca se
-escribe EN él. En particular TdeA-Mimos-Website: mismo dueño, nombre parecido, proyecto
-distinto. Ante duda de en qué repo estás escribiendo, se para y se pregunta.
+escribe EN él. No se traen a este repo convenciones de otro (arquitectura, idioma,
+formato). Ante duda de en qué repo estás escribiendo, se para y se pregunta.
 
 ## Versión mostrada
 
