@@ -5,6 +5,26 @@ Todo lo anterior a v1.0 vive en el historial de git (46 commits, del 2026-04-23 
 2026-07-05, incluido el fork de `JackelineAristizabal/ventasMimosPPI`) y no se
 reconstruye acá.
 
+## v1.2 — 2026-07-23
+
+Doc. Revierte la política de anclaje que trajo la v1.1. Nada de código cambió.
+
+### Removed
+
+- `CLAUDE.md`, secciones "Repos hermanos" y "Referencias cruzadas: anclar, no borrar",
+  agregadas en la v1.1. Describían los otros tres repos del autor una línea cada uno; esa
+  descripción envejece (la de TL-FCCU decía "Bash, documentado en inglés" y ese repo ya
+  tiene un agente Java) e insinuaba una dependencia entre repos que no existe.
+
+### Added
+
+- `CLAUDE.md`, sección "Referencias a otros repos": este repo no describe otros repos; el
+  nombre de otro repo vale como procedencia histórica, nunca como información operativa, y
+  ningún documento de acá depende de otro para entenderse.
+- `docs/DECISIONS.md`: entrada del 2026-07-23 que supersede a la anterior del mismo día,
+  revierte la política de anclaje y deja constancia de que la autorización de doble repo
+  venció (rige un repo por sesión).
+
 ## v1.1 — 2026-07-23
 
 Doc. Política de referencias cruzadas entre repos y regla de CHANGELOG para PR doc-only.
