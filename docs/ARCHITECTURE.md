@@ -161,8 +161,9 @@ Entity los protege"); mantené esa línea.
   `estado_del_arte.md` por corregido. El código actual es la fuente: resuelto por
   lectura de código, sin corrida real en esta sesión (ver DECISIONS del 2026-07-05).
 - **`backend/pom.xml` tiene `<name/>` y `<description/>` vacíos**, y las versiones de los
-  artefactos (`0.0.1-SNAPSHOT` en el pom, `0.0.0` en `frontend/package.json`) no están
-  sincronizadas con el CHANGELOG v1.0. El bump va en el próximo PR de código, nunca en
-  uno doc-only (regla "Versión mostrada" de `CLAUDE.md`).
+  artefactos (`0.0.1-SNAPSHOT` en el pom, `0.0.0` en `frontend/package.json`) quedaron por
+  detrás de la última versión del CHANGELOG. El bump va en el próximo PR de código, nunca
+  en uno doc-only; un doc-only mueve el CHANGELOG hacia adelante y ese desfase es
+  intencional (regla "Versión mostrada" de `CLAUDE.md`).
 - **Sin tests automatizados de verdad.** Un `contextLoads()` y un script E2E manual. No
   hay tests de servicio ni de controlador que corran sin base viva.
