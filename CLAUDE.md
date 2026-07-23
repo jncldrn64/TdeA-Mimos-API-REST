@@ -20,6 +20,13 @@ orden descendente. Cada sección abre con `## vX.Y — YYYY-MM-DD` y adentro lle
 `### Added`, `### Changed`, `### Fixed` o `### Removed`. Todo lo anterior a v1.0 vive en el
 historial de git (46 commits desde el 2026-04-23) y no se reconstruye de memoria.
 
+Un PR doc-only abre su propia sección fechada en el CHANGELOG. No se pliega dentro de la
+sección de una versión ya publicada: esa sección es historia y no se reescribe. La sección
+nueva lleva la fecha real del cambio en ISO 8601, no la de una versión anterior. Un PR
+doc-only puede dejar la última versión del CHANGELOG por delante de la versión del
+artefacto; ese desfase es intencional y lo cierra el próximo PR de código (ver "Versión
+mostrada").
+
 ## DECISIONS
 
 `docs/DECISIONS.md` es append-only, estilo ADR. No se borra una entrada vieja aunque quede
@@ -93,15 +100,49 @@ commitear.
 Este repo (TdeA-Mimos-API-REST) es el único destino de escritura. Cualquier otro
 repositorio clonado en la sesión es solo lectura y contexto: se copia DESDE él, nunca se
 escribe EN él. No se traen a este repo convenciones de otro (arquitectura, idioma,
-formato). Ante duda de en qué repo estás escribiendo, se para y se pregunta.
+formato). Ante duda de en qué repo estás escribiendo, se para y se pregunta. Una tarea
+puede autorizar por escrito escribir en más de un repo a la vez; esa autorización es una
+excepción con fecha, se anota en `docs/DECISIONS.md` y vale solo para esa tarea.
+
+## Repos hermanos
+
+Este repo comparte el estándar de documentación con otros tres del mismo autor, cada uno
+un repositorio de GitHub separado:
+
+- `TdeA-Mimos-Website`: el mismo negocio de Helados Mimos como tienda web en Spring Boot
+  con vistas Thymeleaf y arquitectura hexagonal. Mismo dominio, código y base de datos
+  distintos; no confundir con este repo por el nombre parecido.
+- `TL-FCCU`: sandbox de auditoría de seguridad para TLauncher, un launcher corriendo bajo
+  firejail. Bash, documentado en inglés.
+- `MIDI-Scale-Trainer`: entrenador de escalas MIDI en el navegador. JavaScript vanilla.
+
+No se ponen URLs acá a propósito: el dueño renombra repos, y un nombre resuelve más tiempo
+que un link.
+
+## Referencias cruzadas: anclar, no borrar
+
+Una referencia a otro repo se ancla, no se borra. El anclaje es la sección "Repos
+hermanos" de arriba: cualquier mención a `TdeA-Mimos-Website`, `TL-FCCU` o
+`MIDI-Scale-Trainer` en cualquier archivo de este repo resuelve contra ella, sin repetir
+la explicación. Identificar el repo inline en su primera mención de un archivo también
+vale, que es como lo hace TL-FCCU en su `ROADMAP.md` y su `AGENTS.md`. Lo que no se hace
+es borrar el nombre para "limpiar": borrar no alcanza. La cabecera de la v1.0 del CHANGELOG
+ya nombra a TdeA-Mimos-Website, TL-FCCU y MIDI-Scale-Trainer, y esa sección es historia que
+no se reescribe, así que la referencia sobrevive igual; mejor que resuelva contra un
+anclaje a dejarla colgando. La historia no se reescribe ni para meter anclajes ni para
+sacarlos: el borrado previo de esos nombres en los docs queda como está, la política rige
+de acá en adelante.
 
 ## Versión mostrada
 
 Las versiones de los artefactos (el `<version>` de `backend/pom.xml` y el `version` de
-`frontend/package.json`) son fuente única con el CHANGELOG: siempre la última versión del
+`frontend/package.json`) son fuente única con el CHANGELOG: apuntan a la última versión del
 CHANGELOG. Se bumpean en el mismo PR que trae el cambio de código que lo amerita, nunca en
-un PR doc-only. Hoy dicen `0.0.1-SNAPSHOT` y `0.0.0`; ese desfase está anotado como gap en
-`docs/ARCHITECTURE.md` §8 y se cierra en el próximo PR de código.
+un PR doc-only. Un PR doc-only sí mueve el CHANGELOG hacia adelante (ver la regla de la
+sección "CHANGELOG"), así que entre uno de esos y el próximo PR de código los artefactos
+quedan un paso atrás; ese desfase es intencional. Hoy dicen `0.0.1-SNAPSHOT` y `0.0.0`, por
+detrás del CHANGELOG; el gap está anotado en `docs/ARCHITECTURE.md` §8 y lo cierra el
+próximo PR de código.
 
 ## Convenciones de código
 
